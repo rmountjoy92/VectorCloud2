@@ -91,10 +91,9 @@ def robot_do(commands, override_output=None):
     response = ""
     for command in commands.split(","):
         try:
-            response = f"{str(eval(command))}\n"
+            response += f"{str(eval(command))}\n"
         except Exception as e:
-            robot.disconnect()
-            return e
+            response += f"Error running {command} - {e}\n"
 
     robot.disconnect()
 
@@ -103,16 +102,24 @@ def robot_do(commands, override_output=None):
 
 @socketio.on("request_robot_do")
 def handle_robot_do(json):
-    response = robot_do(json)
-    try:
-        emit(
-            "server_message", {"html": response},
-        )
-    except TypeError:
-        emit(
-            "server_message",
-            {
-                "html": f"ERROR! {response.__class__.__name__}",
-                "classes": "theme-warning",
-            },
-        )
+    if "refresh_stats" not in json:
+        json["refresh_stats"] = False
+    if "send_output" not in json:
+        json["send_output"] = True
+
+    response = robot_do(json["command"])
+
+    if json["send_output"]:
+        try:
+            emit(
+                "server_message",
+                {"html": response, "refresh_stats": json["refresh_stats"]},
+            )
+        except TypeError:
+            emit(
+                "server_message",
+                {
+                    "html": f"ERROR! {response.__class__.__name__}",
+                    "classes": "theme-warning",
+                },
+            )

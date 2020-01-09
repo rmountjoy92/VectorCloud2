@@ -1,4 +1,6 @@
-{% extends "main/layout.html" %}
+{% extends "layout.html" %}
+{% from 'main/vector-cards.html' import VectorCards with context %}
+
 {% block page_vendor_css %}
 {% endblock page_vendor_css %}
 
@@ -9,53 +11,7 @@
     <div id="main" class="main-full">
         <div class="container">
             <div class="row">
-                <div class="col s12 m6 l3">
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="row center-align">
-                                <img id="status-connected-Vector-D5J6" src="static/images/icons/vector.svg" height="80px">
-                                <h5 id="status-name-Vector-D5J6">Waiting for Vector</h5>
-                            </div>
-
-                            <div id="status-Vector-D5J6" class="hide">
-                                <div class="divider"></div>
-
-                                <div class="row center-align">
-                                    <p><span class="font-weight-900">IP:</span> <span id="status-ip-Vector-D5J6">Waiting for Vector</span></p>
-                                    <p><span class="font-weight-900">OS Version:</span> <span id="status-version-Vector-D5J6">Waiting for Vector</span></p>
-                                </div>
-
-                                <div class="divider"></div>
-                            </div>
-
-                            <div class="row card-filter-container">
-                                <div class="col s12 input-field">
-                                <span>
-                                    <i class="material-icons prefix card-search-icon">chevron_right</i>
-                                    <input type="text" id="command-bar-Vector-D5J6" class="card-filter" placeholder="Enter a command">
-                                    <a href="#" class="modal-trigger">
-                                        <i class="material-icons-outlined right filter-action pointer tooltipped"
-                                           data-position="top" data-tooltip="Info">info
-                                        </i>
-                                    </a>
-                                </span>
-                                </div>
-                            </div>
-
-                            <div class="row center-align">
-                                <i id="status-battery-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">battery_unknown</i>
-                                <i id="status-cube-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">pages</i>
-                                <i id="status-docked-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">home</i>
-                                <i id="" class="material-icons-outlined theme-secondary-text icon-btn">games</i>
-                                <i id="" class="material-icons-outlined theme-secondary-text icon-btn">info</i>
-                                <i id="" class="material-icons-outlined theme-secondary-text icon-btn">refresh</i>
-                                <i id="" class="material-icons-outlined theme-secondary-text icon-btn">contactless</i>
-                                <i id="" class="material-icons-outlined theme-secondary-text icon-btn">settings</i>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+                {{ VectorCards() }}
             </div>
 
             <div class="row">
@@ -96,43 +52,5 @@
 {% endblock page_vendor_js %}
 
 {% block page_lvl_js %}
-    <script type="text/javascript">
-        var socket = io();
-        socket.on('connect', function() {
-            socket.emit('request_stats');
-        });
-        socket.on('stats', function(stats) {
-            console.log(stats)
-            $("#status-connected-" + stats.name).attr("src", 'static/images/icons/vector-green.svg')
-            $("#status-ip-" + stats.name).text(stats.ip);
-            $("#status-name-" + stats.name).text(stats.name);
-            $("#status-version-" + stats.name).text(stats.version);
-            if (stats.cube_id && stats.cube_id.length > 0){
-                $("#status-cube-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
-            }
-            if (stats.status_charging == true){
-                $("#status-battery-" + stats.name).text('battery_charging_full');
-                $("#status-battery-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
-                $("#status-docked-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
-            } else if (stats.battery_level < 2){
-                $("#status-battery-" + stats.name).text('battery_alert');
-            } else if (stats.battery_level >= 2){
-                $("#status-battery-" + stats.name).text('battery_full');
-            }
-        });
-        socket.on('server_message', function(message) {
-            if (message.classes == undefined){
-                message.classes = ""
-            }
-            M.toast({html: message.html, classes: message.classes})
-        });
-
-        $("#command-bar-Vector-D5J6").on('keyup', function(e) {
-            if (e.key == "Enter"){
-                M.toast({html: "Sent!"})
-                socket.emit('request_robot_do', $(this).val());
-                $(this).val('');
-            }
-        });
-    </script>
+    {{ process_js_sources(src="main/home.js")|safe }}
 {% endblock page_lvl_js %}
