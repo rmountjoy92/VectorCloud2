@@ -1,7 +1,7 @@
 from flask import render_template, url_for, redirect, Blueprint
 from flask_login import login_user, logout_user, current_user
 from vectorcloud.user_system.forms import LoginForm
-from vectorcloud.models import User
+from vectorcloud.user_system.models import User
 from vectorcloud import bcrypt
 from vectorcloud.main.utils import public_route
 

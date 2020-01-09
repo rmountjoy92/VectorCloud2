@@ -1,6 +1,6 @@
 var socket = io();
 socket.on('connect', function() {
-    socket.emit('request_stats');
+    socket.emit('request_stats', {vector_id: "all"});
 });
 socket.on('stats', function(stats) {
     console.log(stats)
@@ -62,17 +62,20 @@ socket.on('stats', function(stats) {
 
     $("#refresh-vector-"  + stats.name).on('click', function(e) {
         M.toast({html: "Refreshing"})
-        socket.emit('request_stats');
+        socket.emit('request_stats', {vector_id: "all"});
     });
 });
 
 socket.on('server_message', function(message) {
-    console.log(message.refresh_stats)
     if (message.refresh_stats == true){
-        socket.emit('request_stats');
+        socket.emit('request_stats', {vector_id: "all"});
     }
     if (message.classes == undefined){
         message.classes = ""
     }
     M.toast({html: message.html, classes: message.classes})
+});
+
+socket.on('new_logbook_item', function(message) {
+    console.log(message)
 });

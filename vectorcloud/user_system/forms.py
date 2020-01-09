@@ -9,7 +9,7 @@ from wtforms import (
     FileField,
 )
 from wtforms.validators import DataRequired, EqualTo, Email, Length, ValidationError
-from vectorcloud.models import User
+from vectorcloud.user_system.models import User
 
 
 class PasswordForm(FlaskForm):

@@ -1,5 +1,5 @@
 from vectorcloud import db, bcrypt
-from vectorcloud.models import User
+from vectorcloud.user_system.models import User
 
 
 def add_user(email, password, fname, lname):

@@ -4,7 +4,7 @@ from secrets import token_hex
 from htmlmin.main import minify
 from flask import render_template, url_for, redirect, request, Blueprint, jsonify
 from flask_login import current_user
-from vectorcloud.models import Files
+from vectorcloud.main.models import Files
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
