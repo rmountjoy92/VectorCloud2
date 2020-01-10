@@ -1,6 +1,7 @@
 import anki_vector
 from flask_socketio import emit
 from flask import render_template
+from flask_login import current_user
 from datetime import datetime
 from vectorcloud import socketio, db
 from vectorcloud.main.moment import create_moment
@@ -10,43 +11,61 @@ from vectorcloud.main.models import Logbook, Vectors
 # --------------------------------------------------------------------------------------
 # STATS FUNCTIONS
 # --------------------------------------------------------------------------------------
-def get_stats(vector):
-    response = {"ip": vector.ip, "name": vector.name, "serial": vector.serial}
+def get_stats(vector_id, return_stats=False):
+    if vector_id == "all":
+        vectors = Vectors.query.all()
+    else:
+        vectors = Vectors.query.filter_by(id=vector_id).all()
 
-    # get robot name and ip from config file
-    # f = open(sdk_config_file, "r")
-    # serial = f.readline()
-    # serial = serial.replace("]", "")
-    # serial = serial.replace("[", "")
-    # serial = serial.replace("\n", "")
-    # f.close()
-    # config.read(sdk_config_file)
-    # response["ip"] = config.get(serial, "ip")
-    # response["name"] = config.get(serial, "name")
+    for vector in vectors:
+        response = {"ip": vector.ip, "name": vector.name, "serial": vector.serial}
+        robot = anki_vector.Robot(vector.serial, behavior_control_level=None)
+        try:
+            robot.connect()
+        except Exception as e:
+            if return_stats is True:
+                return str(e)
+            else:
+                logbook_log(
+                    name=f"Connection to {vector.name} failed!",
+                    info=f"{e}",
+                    log_type="fail",
+                )
+            continue
 
-    # get results from battery state and version state
-    robot = anki_vector.Robot(vector.serial, behavior_control_level=None)
-    try:
-        robot.connect()
-    except Exception as e:
-        return e
+        try:
+            version_state = robot.get_version_state()
+            battery_state = robot.get_battery_state()
+        except Exception as e:
+            if return_stats is True:
+                return str(e)
+            else:
+                logbook_log(
+                    name=f"{vector.name} failed to report stats!",
+                    info=f"{e}",
+                    log_type="fail",
+                )
+            continue
 
-    version_state = robot.get_version_state()
-    battery_state = robot.get_battery_state()
-    robot.disconnect()
+        robot.disconnect()
 
-    response["version"] = version_state.os_version
-    response["battery_voltage"] = battery_state.battery_volts
-    response["battery_level"] = battery_state.battery_level
-    response["status_charging"] = battery_state.is_on_charger_platform
-    response["cube_battery_level"] = battery_state.cube_battery.level
-    response["cube_id"] = battery_state.cube_battery.factory_id
-    response["cube_battery_volts"] = battery_state.cube_battery.battery_volts
+        response["version"] = version_state.os_version
+        response["battery_voltage"] = battery_state.battery_volts
+        response["battery_level"] = battery_state.battery_level
+        response["status_charging"] = battery_state.is_on_charger_platform
+        response["cube_battery_level"] = battery_state.cube_battery.level
+        response["cube_id"] = battery_state.cube_battery.factory_id
+        response["cube_battery_volts"] = battery_state.cube_battery.battery_volts
 
-    logbook_log(
-        name=f"{vector.name} reported his stats", log_type="success", info=str(response)
-    )
-    return response
+        if return_stats is True:
+            return response
+        else:
+            logbook_log(
+                name=f"{vector.name} reported its stats",
+                log_type="success",
+                info=str(response),
+            )
+            emit("stats", response)
 
 
 @socketio.on("request_stats")
@@ -54,57 +73,71 @@ def handle_stats_request(json):
     if "vector_id" not in json:
         json["vector_id"] = "all"
 
-    if json["vector_id"] == "all":
-        vectors = Vectors.query.all()
-    else:
-        vectors = Vectors.query.filter_by(id=json["vector_id"]).all()
-
-    for vector in vectors:
-        response = get_stats(vector)
-        try:
-            emit("stats", response)
-        except TypeError:
-            emit(
-                "server_message",
-                {
-                    "html": f"ERROR! {response.__class__.__name__}",
-                    "classes": "theme-warning",
-                },
-            )
+    get_stats(json["vector_id"])
 
 
 # --------------------------------------------------------------------------------------
 # ROBOT DO FUNCTIONS
 # --------------------------------------------------------------------------------------
-def robot_do(commands, vector_id):
+def robot_do(commands, vector_id, emit_logbook=True):
     vector = Vectors.query.filter_by(id=vector_id).first()
-    logbook_log(name=f"You sent {vector.name} {commands}")
+
+    command_list = commands.split(",")
+    if len(command_list) > 1:
+        commands_str = f"{len(command_list)} commands"
+    else:
+        commands_str = commands
+
+    try:
+        user_fname = current_user.fname
+    except AttributeError:
+        user_fname = "The API"
+    nl = "\n"
+    logbook_log(
+        name=f"{user_fname} sent {vector.name} {commands_str}",
+        info=f"COMMANDS:\n{commands.replace(',', nl)}",
+        emit_logbook=emit_logbook,
+    )
 
     robot = anki_vector.Robot(vector.serial)
     try:
         robot.connect()
     except Exception as e:
         logbook_log(
-            name=f"Connection to {vector.name} failed!", info=f"{e}", log_type="fail"
+            name=f"Connection to {vector.name} failed!",
+            info=f"{e}",
+            log_type="fail",
+            emit_logbook=emit_logbook,
         )
+        return f"{e}"
 
     response = ""
-    for command in commands.split(","):
+    i = 1
+    for command in command_list:
         try:
-            response += f"{str(eval(command))}\n"
-            logbook_log(
-                name=f"{vector.name} completed {commands}",
-                info=response,
-                log_type="success",
-            )
+            response += f"COMMAND: {command}\nRESPONSE: {str(eval(command))}\n"
+            if i == len(command_list):
+                logbook_log(
+                    name=f"{vector.name} completed {commands_str}",
+                    info=response,
+                    log_type="success",
+                    emit_logbook=emit_logbook,
+                )
         except Exception as e:
+            response += f"{e}\n"
             logbook_log(
                 name=f"Command {command} to {vector.name} failed!",
                 info=f"{e}",
                 log_type="fail",
+                emit_logbook=emit_logbook,
             )
+        i += 1
 
     robot.disconnect()
+    if not emit_logbook:
+        return response
+    else:
+        get_stats(vector.id)
 
 
 @socketio.on("request_robot_do")
@@ -126,7 +159,7 @@ def get_logbook_html():
     return html
 
 
-def logbook_log(name, info=None, log_type=None):
+def logbook_log(name, info=None, log_type=None, emit_logbook=True):
     log = Logbook()
     log.name = name
     log.info = info
@@ -134,7 +167,8 @@ def logbook_log(name, info=None, log_type=None):
     log.log_type = log_type
     db.session.add(log)
     db.session.commit()
-    emit("logbook", get_logbook_html())
+    if emit_logbook:
+        emit("logbook", get_logbook_html())
 
 
 @socketio.on("request_logbook")

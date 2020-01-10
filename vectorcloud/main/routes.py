@@ -31,10 +31,10 @@ def response_minify(response):
 # signed in.
 @main.before_app_request
 def check_valid_login():
-
     if any(
         [
             request.endpoint.startswith("static"),
+            "/api/" in request.path,
             current_user.is_authenticated,
             getattr(app.view_functions[request.endpoint], "is_public", False),
         ]

@@ -45,6 +45,8 @@ socket.on('logbook', function(message) {
 });
 
 $( document ).ready(function() {
+    $("#logbook-info-modal").modal();
+
     $(".command-bar").on('keyup', function(e) {
         if (e.key == "Enter"){
             socket.emit('request_robot_do', {
@@ -83,4 +85,13 @@ $( document ).ready(function() {
     $(".refresh-vector").on('click', function(e) {
         socket.emit('request_stats', {vector_id: $(this).attr("data-id")});
     });
+
 });
+
+function init_logbook() {
+    $(".show-logbook-info").on('click', function(e) {
+        $("#logbook-info-code").text($(this).attr('data-info'));
+        $("#logbook-info-title").text($(this).attr('data-name'));
+        $("#logbook-info-modal").modal('open');
+    });
+}

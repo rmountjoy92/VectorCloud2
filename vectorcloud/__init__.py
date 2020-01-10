@@ -51,4 +51,6 @@ app.register_blueprint(error_pages)
 
 from vectorcloud.rest_api.resources import *
 
-api.add_resource(GetVersion, "/api/version")
+api.add_resource(Version, "/api/version")
+api.add_resource(Stats, "/api/stats")
+api.add_resource(RobotDo, "/api/robot_do")

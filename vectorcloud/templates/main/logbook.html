@@ -1,6 +1,14 @@
 {% from 'main/logbook-rows.html' import LogbookRows with context %}
 
 {% macro LogBook() %}
+    <div id="logbook-info-modal" class="modal">
+        <div class="modal-content">
+            <h6 id="logbook-info-title" class="center"></h6>
+            <div class="theme-surface-1 selectable mt-2 padding-1 border-radius-10">
+                <code id="logbook-info-code"></code>
+            </div>
+        </div>
+    </div>
     <div class="row mt-2">
         <div id="activity" class="col s12">
             <div class="activity">

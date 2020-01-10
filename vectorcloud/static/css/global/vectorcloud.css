@@ -83,6 +83,8 @@ blockquote {
     border-left: 5px solid var(--theme-primary);
 }
 
+code { white-space: pre-wrap; }
+
 /* SCROLLBARS */
 /* width */
 ::-webkit-scrollbar {
