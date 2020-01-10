@@ -15,6 +15,7 @@ class Logbook(db.Model):
     name = db.Column(db.String())
     info = db.Column(db.String())
     dt = db.Column(db.String())
+    log_type = db.Column(db.String())
 
 
 class Vectors(db.Model):

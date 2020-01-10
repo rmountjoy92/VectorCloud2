@@ -1,26 +1,32 @@
 {% extends "layout.html" %}
 {% from 'main/vector-cards.html' import VectorCards with context %}
+{% from 'main/logbook.html' import LogBook with context %}
 
 {% block page_vendor_css %}
 {% endblock page_vendor_css %}
 
 {% block page_lvl_css %}
+    {{ process_css_sources(src="main/home.css")|safe }}
 {% endblock page_lvl_css %}
 
 {% block content %}
     <div id="main" class="main-full">
         <div class="container">
             <div class="row">
-                {{ VectorCards() }}
-            </div>
-
-            <div class="row">
                 <div class="col s12 m12 l6">
-                    <div class="card">
+                    {{ VectorCards() }}
+                </div>
+
+                <div class="col s12 m12 l6">
+                    <div class="card" style="max-height: calc(100vh - 80px)">
                         <div class="card-content">
                             <div class="row">
                                 <div class="col s12">
                                     <ul class="tabs tabs-fixed-width">
+                                        <li class="tab"><a href="#logbook-tab" class="tooltipped" data-position="top" data-tooltip="Logbook">
+                                            <i class="material-icons-outlined">timeline</i>
+                                        </a></li>
+
                                         <li class="tab"><a href="#apps-tab" class="tooltipped" data-position="top" data-tooltip="Apps">
                                             <i class="material-icons-outlined">apps</i>
                                         </a></li>
@@ -34,6 +40,7 @@
                                         </a></li>
                                     </ul>
                                 </div>
+                                <div id="logbook-tab" class="col s12">{{ LogBook() }}</div>
                                 <div id="apps-tab" class="col s12">Test 1</div>
                                 <div id="store-tab" class="col s12">Test 1</div>
                                 <div id="settings-tab" class="col s12">Test 1</div>
@@ -42,7 +49,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     </div>

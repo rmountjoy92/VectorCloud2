@@ -4,7 +4,7 @@ from secrets import token_hex
 from htmlmin.main import minify
 from flask import render_template, url_for, redirect, request, Blueprint, jsonify
 from flask_login import current_user
-from vectorcloud.main.models import Files
+from vectorcloud.main.models import Files, Vectors, Logbook
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
@@ -51,8 +51,11 @@ def check_valid_login():
 @main.route("/")
 @main.route("/home", methods=["GET", "POST"])
 def home():
-
-    return render_template("main/home.html")
+    vectors = Vectors.query.all()
+    logbook_items = Logbook.query.all()
+    return render_template(
+        "main/home.html", vectors=vectors, logbook_items=logbook_items
+    )
 
 
 # ------------------------------------------------------------------------------

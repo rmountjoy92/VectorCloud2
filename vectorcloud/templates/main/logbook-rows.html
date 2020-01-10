@@ -1,0 +1,18 @@
+{% if logbook_items %}
+    {% for item in logbook_items %}
+        <div
+                {% if item.log_type == "success" %}
+                    class="successful_cmd"
+                {% elif item.log_type == "fail" %}
+                    class="failed_cmd"
+                {% endif %} >
+
+            <li class="collection-item feed-item-li">
+                <div class="font-weight-900 selectable">
+                    {{ item.name }} <span class="secondary-content">{{ item.moment }}</span>
+                </div>
+            </li>
+        </div>
+    {% endfor %}
+{% else %}
+{% endif %}

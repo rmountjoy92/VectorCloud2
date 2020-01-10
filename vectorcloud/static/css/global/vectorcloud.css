@@ -581,11 +581,6 @@ input:disabled {
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* FEED */
-#feed-body {
-    min-height: calc(100vh - 220px);
-    max-height: calc(100vh - 220px);
-}
 #slide-out-right.sidenav #activity .header-search-input {
     background-color: var(--theme-background);
 }

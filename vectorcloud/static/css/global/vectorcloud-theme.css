@@ -11,6 +11,7 @@
   --theme-color-font-muted: rgba(44, 47, 58, 0.85);
   --theme-color-font-muted2: rgba(44, 47, 58, 0.65);
   --theme-warning: #f44336;
+  --theme-success: #4BB543;
 }
 [data-theme="dark"] {
   --theme-background: #1c1c1c;

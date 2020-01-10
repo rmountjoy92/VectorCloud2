@@ -1,49 +1,51 @@
 {% macro VectorCards() %}
-    <div class="col s12 m6 l3">
-        <div class="card">
-            <div class="card-content">
-                <div class="row center-align">
-                    <img id="status-connected-Vector-D5J6" src="static/images/icons/vector.svg" height="80px">
-                    <h5 id="status-name-Vector-D5J6">Waiting for Vector</h5>
-                </div>
-
-                <div class="row card-filter-container">
-                    <div class="col s12 input-field">
-                                <span>
-                                    <i class="material-icons prefix card-search-icon">chevron_right</i>
-                                    <input type="text" id="command-bar-Vector-D5J6" class="card-filter" placeholder="Enter a command">
-                                    <a href="#" class="modal-trigger">
-                                        <i class="material-icons-outlined right filter-action pointer tooltipped"
-                                           data-position="top" data-tooltip="Info">info
-                                        </i>
-                                    </a>
-                                </span>
+    {% for vector in vectors %}
+        <div class="col s12 m6 l6">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row center-align">
+                        <img id="status-connected-{{ vector.name }}" src="static/images/icons/vector.svg" height="80px">
+                        <h5 id="status-name-{{ vector.name }}">Waiting for Vector</h5>
                     </div>
+
+                    <div class="row card-filter-container">
+                        <div class="col s12 input-field">
+                        <span>
+                            <i class="material-icons prefix card-search-icon">chevron_right</i>
+                            <input type="text" id="command-bar-{{ vector.name }}" class="card-filter command-bar" placeholder="Enter a command" data-id="{{ vector.id }}">
+                            <a href="#" class="modal-trigger">
+                                <i class="material-icons-outlined right filter-action pointer tooltipped"
+                                   data-position="top" data-tooltip="Info">info
+                                </i>
+                            </a>
+                        </span>
+                        </div>
+                    </div>
+
+                    <div class="row center-align">
+                        <i id="status-battery-{{ vector.name }}" class="material-icons-outlined theme-secondary-text icon-btn">battery_unknown</i>
+                        <i id="status-cube-{{ vector.name }}" class="material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">pages</i>
+                        <i id="status-docked-{{ vector.name }}" class="status-docked material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">home</i>
+                        <a class="dropdown-trigger" data-target="info-dropdown-{{ vector.name }}">
+                            <i class="material-icons-outlined theme-secondary-text icon-btn">info</i>
+                        </a>
+                        <i id="" class="material-icons-outlined theme-secondary-text icon-btn">games</i>
+                        <i class="refresh-vector material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">refresh</i>
+                        <i class="ping-vector material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">contactless</i>
+                        <i id="" class="material-icons-outlined theme-secondary-text icon-btn" >settings</i>
+                    </div>
+
+                    <ul id="info-dropdown-{{ vector.name }}" class="dropdown-content">
+                        <li>
+                            <span id="status-ip-{{ vector.name }}">IP: Waiting for Vector</span>
+                        </li>
+                        <li>
+                            <span id="status-version-{{ vector.name }}">OS Version: Waiting for Vector</span>
+                        </li>
+                    </ul>
+
                 </div>
-
-                <div class="row center-align">
-                    <i id="status-battery-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">battery_unknown</i>
-                    <i id="status-cube-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">pages</i>
-                    <i id="status-docked-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">home</i>
-                    <a class="dropdown-trigger" data-target="info-dropdown-Vector-D5J6">
-                        <i class="material-icons-outlined theme-secondary-text icon-btn">info</i>
-                    </a>
-                    <i id="" class="material-icons-outlined theme-secondary-text icon-btn">games</i>
-                    <i id="refresh-vector-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">refresh</i>
-                    <i id="ping-vector-Vector-D5J6" class="material-icons-outlined theme-secondary-text icon-btn">contactless</i>
-                    <i id="" class="material-icons-outlined theme-secondary-text icon-btn">settings</i>
-                </div>
-
-                <ul id="info-dropdown-Vector-D5J6" class="dropdown-content">
-                    <li>
-                        <span id="status-ip-Vector-D5J6">IP: Waiting for Vector</span>
-                    </li>
-                    <li>
-                        <span id="status-version-Vector-D5J6">OS Version: Waiting for Vector</span>
-                    </li>
-                </ul>
-
             </div>
         </div>
-    </div>
+    {% endfor %}
 {% endmacro %}

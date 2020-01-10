@@ -1,6 +1,7 @@
 var socket = io();
 socket.on('connect', function() {
     socket.emit('request_stats', {vector_id: "all"});
+    socket.emit('request_logbook');
 });
 socket.on('stats', function(stats) {
     console.log(stats)
@@ -25,45 +26,6 @@ socket.on('stats', function(stats) {
         $("#status-docked-" + stats.name).addClass('theme-secondary-text').removeClass('theme-primary-text');
     }
 
-    $("#command-bar-" + stats.name).on('keyup', function(e) {
-        if (e.key == "Enter"){
-            M.toast({html: "Sent!"})
-            socket.emit('request_robot_do', {
-                command: $(this).val(),
-                refresh_stats: true
-            });
-            $(this).val('');
-        }
-    });
-
-    $("#status-docked-"  + stats.name).on('click', function(e) {
-        if ($(this).hasClass('theme-primary-text')){
-            M.toast({html: "Undocking"})
-            socket.emit('request_robot_do', {
-                command: "robot.behavior.drive_off_charger()",
-                refresh_stats: true,
-            });
-        } else {
-            M.toast({html: "Docking"})
-            socket.emit('request_robot_do', {
-                command: "robot.behavior.drive_on_charger()",
-                refresh_stats: true,
-            });
-        }
-
-    });
-
-    $("#ping-vector-"  + stats.name).on('click', function(e) {
-        M.toast({html: "Sent!"})
-        socket.emit('request_robot_do', {
-            command: "robot.behavior.say_text('ping')",
-        });
-    });
-
-    $("#refresh-vector-"  + stats.name).on('click', function(e) {
-        M.toast({html: "Refreshing"})
-        socket.emit('request_stats', {vector_id: "all"});
-    });
 });
 
 socket.on('server_message', function(message) {
@@ -76,6 +38,49 @@ socket.on('server_message', function(message) {
     M.toast({html: message.html, classes: message.classes})
 });
 
-socket.on('new_logbook_item', function(message) {
-    console.log(message)
+socket.on('logbook', function(message) {
+    $("#feed-rows-ul").empty();
+    $("#feed-rows-ul").append(message);
+    $("#feed-rows-ul").scrollTop($("#feed-rows-ul").height())
+});
+
+$( document ).ready(function() {
+    $(".command-bar").on('keyup', function(e) {
+        if (e.key == "Enter"){
+            socket.emit('request_robot_do', {
+                command: $(this).val(),
+                refresh_stats: true,
+                vector_id: $(this).attr("data-id")
+            });
+            $(this).val('');
+        }
+    });
+
+    $(".status-docked").on('click', function(e) {
+        if ($(this).hasClass('theme-primary-text')){
+            socket.emit('request_robot_do', {
+                command: "robot.behavior.drive_off_charger()",
+                refresh_stats: true,
+                vector_id: $(this).attr("data-id")
+            });
+        } else {
+            socket.emit('request_robot_do', {
+                command: "robot.behavior.drive_on_charger()",
+                refresh_stats: true,
+                vector_id: $(this).attr("data-id")
+            });
+        }
+
+    });
+
+    $(".ping-vector").on('click', function(e) {
+        socket.emit('request_robot_do', {
+            command: "robot.behavior.say_text('ping')",
+            vector_id: $(this).attr("data-id")
+        });
+    });
+
+    $(".refresh-vector").on('click', function(e) {
+        socket.emit('request_stats', {vector_id: $(this).attr("data-id")});
+    });
 });

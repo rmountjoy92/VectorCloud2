@@ -11,7 +11,7 @@ Load orders in bundles are respected here"""
 
 """You can disable minification for debug purposes here (set to True) """
 debug_js = False
-debug_css = False
+debug_css = True
 
 
 def process_js_sources(process_bundle=None, src=None, app_global=False):

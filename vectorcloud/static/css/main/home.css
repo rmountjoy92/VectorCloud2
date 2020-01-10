@@ -1,0 +1,14 @@
+#activity #feed-rows-ul::before {
+    margin: 0;
+    left: 7px;
+}
+#activity #feed-rows-ul .collection-item::before {
+    margin: 0;
+    left: 0;
+}
+#activity #feed-rows-ul .successful_cmd .collection-item::before {
+    color: var(--theme-success);
+}
+#activity #feed-rows-ul .failed_cmd .collection-item::before {
+    color: var(--theme-warning);
+}
