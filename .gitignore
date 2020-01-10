@@ -115,3 +115,5 @@ dmypy.json
 .directory
 scheduler.db
 scheduler.db
+
+.idea/
