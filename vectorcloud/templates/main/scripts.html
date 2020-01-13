@@ -1,0 +1,68 @@
+{% from 'global_macros.html' import input, button %}
+
+{% macro Scripts() %}
+    <div id="add-edit-script-modal" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12">
+                    <h5>Add Script</h5>
+
+                    <form id="add-edit-script-form">
+                        {{ input(
+                        label="Name",
+                        size="s12",
+                        name="name",
+                        id="add-edit-script-name"
+                        ) }}
+
+                        {{ input(
+                        label="Description",
+                        size="s12",
+                        name="description",
+                        id="add-edit-script-description"
+                        ) }}
+
+                        {{ input(
+                        label="Commands",
+                        size="s12",
+                        name="commands",
+                        textarea=True,
+                        id="add-edit-script-commands"
+                        ) }}
+
+                        {{ button(
+                        id="add-edit-script-save-btn",
+                        icon="save",
+                        text="save",
+                        class="mb-2"
+                        ) }}
+
+                        <input name="script_id" class="hide" id="add-edit-script-id">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col s12">
+            <div class="row card-filter-container">
+                <div class="col s12 input-field">
+                    <span><i class="material-icons-outlined prefix card-search-icon">search</i>
+                    <input type="text" id="scripts-filter" class="card-filter" placeholder="Search scripts"></span>
+                    <a href="#add-edit-script-modal" class="modal-trigger">
+                        <i class="material-icons-outlined right filter-action pointer tooltipped"
+                           data-position="top" data-tooltip="Add script" onclick="$('#add-edit-script-form').trigger('reset')">add
+                        </i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <ul id="scripts-collection" class="collection"></ul>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

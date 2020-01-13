@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% from 'main/vector-cards.html' import VectorCards with context %}
 {% from 'main/logbook.html' import LogBook with context %}
+{% from 'main/scripts.html' import Scripts with context %}
 
 {% block page_vendor_css %}
 {% endblock page_vendor_css %}
@@ -27,6 +28,10 @@
                                             <i class="material-icons-outlined">timeline</i>
                                         </a></li>
 
+                                        <li class="tab"><a href="#scripts-tab" class="tooltipped" data-position="top" data-tooltip="Scripts">
+                                            <i class="material-icons-outlined">list</i>
+                                        </a></li>
+
                                         <li class="tab"><a href="#apps-tab" class="tooltipped" data-position="top" data-tooltip="Apps">
                                             <i class="material-icons-outlined">apps</i>
                                         </a></li>
@@ -41,6 +46,7 @@
                                     </ul>
                                 </div>
                                 <div id="logbook-tab" class="col s12">{{ LogBook() }}</div>
+                                <div id="scripts-tab" class="col s12">{{ Scripts() }}</div>
                                 <div id="apps-tab" class="col s12">Test 1</div>
                                 <div id="store-tab" class="col s12">Test 1</div>
                                 <div id="settings-tab" class="col s12">Test 1</div>

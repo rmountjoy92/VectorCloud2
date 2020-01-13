@@ -1,4 +1,3 @@
-import os
 from flask import request
 from flask_restful import Resource
 from vectorcloud.version import vectorcloud_version
@@ -30,6 +29,7 @@ class RobotDo(Resource):
             response = robot_do(
                 commands=request.form["commands"],
                 vector_id=request.form["vector_id"],
+                args=request.form["args"],
                 emit_logbook=False,
             )
             return {"output": response}

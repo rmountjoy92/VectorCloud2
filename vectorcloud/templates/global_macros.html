@@ -89,7 +89,8 @@ col_id="",
 icon=None,
 spacer_icon=False,
 required='',
-helper=None
+helper=None,
+textarea=False
 )%}
     <div id="{{col_id}}" class="input-field col {{ size }} {{ col_class }}">
         {% if spacer_icon == True %}
@@ -105,8 +106,10 @@ helper=None
             {% else %}
                 {{ form_obj(id=id, value=val, class="validate " + class) }}
             {% endif %}
+        {% elif textarea == True %}
+            <textarea id="{{id}}" class="materialize-textarea validate {{ class }}" ((required}}>{{ val }}</textarea>
         {% else %}
-            <input id="{{ id }}" type="text" value={{val}} class="validate {{class}}" {{required}}>
+            <input id="{{ id }}" type="text" value="{{val}}" class="validate {{class}}" {{required}}>
         {% endif %}
 
         {% if label %}

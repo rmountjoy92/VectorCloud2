@@ -1,3 +1,4 @@
+import io
 import anki_vector
 from flask_socketio import emit
 from flask import render_template
@@ -5,7 +6,7 @@ from flask_login import current_user
 from datetime import datetime
 from vectorcloud import socketio, db
 from vectorcloud.main.moment import create_moment
-from vectorcloud.main.models import Logbook, Vectors
+from vectorcloud.main.models import Logbook, Vectors, Scripts
 
 
 # --------------------------------------------------------------------------------------
@@ -79,15 +80,28 @@ def handle_stats_request(json):
 # --------------------------------------------------------------------------------------
 # ROBOT DO FUNCTIONS
 # --------------------------------------------------------------------------------------
-def robot_do(commands, vector_id, emit_logbook=True):
+def robot_do(commands, vector_id, emit_logbook=True, args=None):
     vector = Vectors.query.filter_by(id=vector_id).first()
 
-    command_list = commands.split(",")
-    if len(command_list) > 1:
-        commands_str = f"{len(command_list)} commands"
+    if "script:" in commands:
+        script_id_or_name = commands.split(":")[1]
+        # if "?" in script_id_or_name:
+        #     args = script_id_or_name.split("?")[1]
+        #     script_id_or_name = script_id_or_name.split("?")[0]
+        script = Scripts.query.filter_by(id=script_id_or_name).first()
+        if not script:
+            script = Scripts.query.filter_by(name=script_id_or_name).first()
+        command_list = script.commands.split(",")
+        commands_str = script.name
     else:
-        commands_str = commands
-
+        command_list = commands.split(",")
+        if len(command_list) > 1:
+            commands_str = f"{len(command_list)} commands"
+        else:
+            commands_str = commands
+    if args:
+        for arg in args.split(","):
+            command_list.insert(0, arg)
     try:
         user_fname = current_user.fname
     except AttributeError:
@@ -115,7 +129,11 @@ def robot_do(commands, vector_id, emit_logbook=True):
     i = 1
     for command in command_list:
         try:
-            response += f"COMMAND: {command}\nRESPONSE: {str(eval(command))}\n"
+            if any(x in command for x in ["=", "from ", "import"]):
+                response += f"COMMAND: {command}\n"
+                exec(command)
+            else:
+                response += f"COMMAND: {command}\nRESPONSE: {str(eval(command))}\n"
             if i == len(command_list):
                 logbook_log(
                     name=f"{vector.name} completed {commands_str}",
@@ -174,6 +192,82 @@ def logbook_log(name, info=None, log_type=None, emit_logbook=True):
 @socketio.on("request_logbook")
 def handle_logbook_request():
     emit("logbook", get_logbook_html())
+
+
+@socketio.on("logbook_log")
+def handle_logbook_log(json):
+    if "emit_logbook" not in json:
+        json["emit_logbook"] = True
+
+    logbook_log(
+        name=json["name"], log_type=json["log_type"], emit_logbook=json["emit_logbook"]
+    )
+
+
+# --------------------------------------------------------------------------------------
+# VIDEO STREAMING FUNCTIONS
+# --------------------------------------------------------------------------------------
+def stream_video(vector_id):
+    vector = Vectors.query.filter_by(id=vector_id).first()
+    robot = anki_vector.Robot(vector.serial)
+    robot.connect()
+    robot.camera.init_camera_feed()
+    logbook_log(
+        name=f"{vector.name} has started streaming.",
+        log_type="success",
+        emit_logbook=False,
+    )
+    while True:
+        image = robot.camera.latest_image.raw_image
+        img_io = io.BytesIO()
+        image.save(img_io, "PNG")
+        img_io.seek(0)
+        yield (
+            b"--frame\r\n"
+            b"Content-Type: image/png\r\n\r\n" + img_io.getvalue() + b"\r\n"
+        )
+
+
+# --------------------------------------------------------------------------------------
+# SCRIPTS FUNCTIONS
+# --------------------------------------------------------------------------------------
+def add_edit_script(name, description, commands, script_id=None):
+    commands = commands.replace("\n", ",")
+    if script_id:
+        script = Scripts.query.filter_by(id=script_id).first()
+    else:
+        script = Scripts()
+
+    script.name = name
+    script.description = description
+    script.commands = commands
+    db.session.merge(script)
+    db.session.commit()
+    return row2dict(script)
+
+
+@socketio.on("add_edit_script")
+def handle_add_edit_script(json):
+    if "script_id" not in json:
+        json["script_id"] = None
+
+    script = add_edit_script(
+        name=json["name"],
+        description=json["description"],
+        commands=json["commands"],
+        script_id=json["script_id"],
+    )
+
+
+def get_scripts_html():
+    scripts = Scripts.query.all()
+    html = render_template("main/scripts-rows.html", scripts=scripts)
+    return html
+
+
+@socketio.on("request_scripts")
+def handle_scripts_request():
+    emit("scripts", get_scripts_html())
 
 
 # --------------------------------------------------------------------------------------

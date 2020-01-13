@@ -29,5 +29,12 @@ class Vectors(db.Model):
     description = db.Column(db.String())
 
 
+class Scripts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    description = db.Column(db.String())
+    commands = db.Column(db.String())
+
+
 db.create_all()
 db.session.commit()

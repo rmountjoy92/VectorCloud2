@@ -2,9 +2,18 @@ import os
 import glob
 from secrets import token_hex
 from htmlmin.main import minify
-from flask import render_template, url_for, redirect, request, Blueprint, jsonify
+from flask import (
+    render_template,
+    url_for,
+    redirect,
+    request,
+    Blueprint,
+    jsonify,
+    Response,
+)
 from flask_login import current_user
 from vectorcloud.main.models import Files, Vectors, Logbook
+from vectorcloud.main.utils import stream_video, logbook_log
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
@@ -55,6 +64,13 @@ def home():
     logbook_items = Logbook.query.all()
     return render_template(
         "main/home.html", vectors=vectors, logbook_items=logbook_items
+    )
+
+
+@main.route("/video_feed?<vector_id>")
+def video_feed(vector_id):
+    return Response(
+        stream_video(vector_id), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
 

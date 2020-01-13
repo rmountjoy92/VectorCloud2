@@ -2,6 +2,7 @@ var socket = io();
 socket.on('connect', function() {
     socket.emit('request_stats', {vector_id: "all"});
     socket.emit('request_logbook');
+    socket.emit('request_scripts');
 });
 socket.on('stats', function(stats) {
     console.log(stats)
@@ -9,6 +10,13 @@ socket.on('stats', function(stats) {
     $("#status-ip-" + stats.name).text("IP: " + stats.ip);
     $("#status-name-" + stats.name).text(stats.name);
     $("#status-version-" + stats.name).text("OS Version: " +  stats.version);
+    $("#status-serial-" + stats.name).text("Serial: " +  stats.serial);
+    $("#status-battery_voltage-" + stats.name).text("Battery Voltage: " +  stats.battery_voltage);
+    $("#status-battery_level-" + stats.name).text("Battery Level: " +  stats.battery_level);
+    $("#status-status_charging-" + stats.name).text("Charging Status: " +  stats.status_charging);
+    $("#status-cube_id-" + stats.name).text("Cube ID: " +  stats.cube_id);
+    $("#status-cube_battery_volts-" + stats.name).text("Cube Battery Volts: " +  stats.cube_battery_volts);
+    $("#status-cube_battery_level-" + stats.name).text("Cube Battery Level: " +  stats.cube_battery_level);
     if (stats.cube_id && stats.cube_id.length > 0){
         $("#status-cube-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
     }
@@ -41,11 +49,16 @@ socket.on('server_message', function(message) {
 socket.on('logbook', function(message) {
     $("#feed-rows-ul").empty();
     $("#feed-rows-ul").append(message);
-    $("#feed-rows-ul").scrollTop($("#feed-rows-ul").height())
+});
+
+socket.on('scripts', function(message) {
+    $("#scripts-collection").empty();
+    $("#scripts-collection").append(message);
 });
 
 $( document ).ready(function() {
     $("#logbook-info-modal").modal();
+    $("#add-edit-script-modal").modal();
 
     $(".command-bar").on('keyup', function(e) {
         if (e.key == "Enter"){
@@ -86,7 +99,86 @@ $( document ).ready(function() {
         socket.emit('request_stats', {vector_id: $(this).attr("data-id")});
     });
 
+    function hide_info_tabs(el, id){
+        if (el.hasClass('hide')){
+            $(".status-tabs-" + id).each(function(e) {
+                $(this).addClass('hide');
+            });
+            el.removeClass('hide');
+        } else {
+            el.addClass('hide');
+        }
+    }
+
+    $(".status-cube").on('click', function(e) {
+        var id = $(this).attr("data-id");
+        hide_info_tabs($("#status-cube-row-" + id), id);
+
+        if ($(this).hasClass('theme-secondary-text')) {
+            socket.emit('request_robot_do', {
+                command: "robot.world.connect_cube()",
+                vector_id: id
+            });
+        }
+    });
+
+    $(".status-info").on('click', function(e) {
+        var id = $(this).attr("data-id")
+        hide_info_tabs($("#status-info-row-" + id), id);
+    });
+
+    $(".status-battery").on('click', function(e) {
+        var id = $(this).attr("data-id")
+        hide_info_tabs($("#status-battery-row-" + id), id);
+    });
+
+    $(".status-remote").on('click', function(e) {
+        var id = $(this).attr("data-id");
+        hide_info_tabs($("#status-video-feed-row-" + id), id);
+        $("#video-feed-preload-circle-" + id).removeClass('hide');
+        $("#status-video-feed-" + id).attr("src", $("#status-video-feed-" + id).attr('data-url'));
+    });
+
+    $(".status-video-feed").on('load', function (e) {
+        var id = $(this).attr("data-id");
+        $("#video-feed-preload-circle-" + id).addClass('hide');
+        socket.emit('request_logbook');
+    });
+
+    $(".status-close-video-feed").on('click', function(e) {
+        var id = $(this).attr("data-id");
+        var name = $(this).attr("data-name");
+        $("#status-video-feed-" + id).attr("src", "static/images/avatar.jpg");
+        $("#status-video-feed-row-" + id).addClass('hide');
+        socket.emit('logbook_log', {name: name + " closed the stream.", log_type: 'success'});
+    });
+
+    $("#add-edit-script-save-btn").on('click', function(e) {
+        socket.emit('add_edit_script', {
+            name: $("#add-edit-script-name").val(),
+            description: $("#add-edit-script-description").val(),
+            commands: $("#add-edit-script-commands").val(),
+            script_id: $("#add-edit-script-id").val(),
+        });
+        $("#add-edit-script-form").trigger('reset');
+        $("#add-edit-script-modal").modal('close');
+        socket.emit("request_scripts");
+    });
+
 });
+
+function init_scripts() {
+    $(".edit-script-btn").on('click', function(e) {
+        $("#add-edit-script-form").trigger('reset');
+        $("#add-edit-script-name").val($(this).attr('data-name'));
+        $("#add-edit-script-description").val($(this).attr('data-description'));
+        $("#add-edit-script-commands").val($(this).attr('data-commands').replace(/,/g, '\n'));
+        M.textareaAutoResize($('#add-edit-script-commands'));
+        $("#add-edit-script-id").val($(this).attr('data-id'));
+        M.updateTextFields();
+        $("#add-edit-script-modal").modal('open');
+    });
+}
 
 function init_logbook() {
     $(".show-logbook-info").on('click', function(e) {
