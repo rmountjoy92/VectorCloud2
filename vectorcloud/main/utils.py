@@ -13,6 +13,15 @@ from vectorcloud.main.models import Logbook, Vectors, Scripts
 # STATS FUNCTIONS
 # --------------------------------------------------------------------------------------
 def get_stats(vector_id, return_stats=False):
+    """
+    :type vector_id: int
+    :param vector_id: The database ID for the Vector you want robot_do to control. If empty this defaults to '1', which is the first Vector registered in the database
+
+    :type return_stats: bool
+    :param return_stats: Default is True, if set to False, the server will not emit the stats to the web client, instead it will return the response.
+
+    :return: If return_stats is set to True, this function will return the response of the function as a dictionary object. If return_stats is False, this function will return nothing, but emit the stats to the web client
+    """
     if vector_id == "all":
         vectors = Vectors.query.all()
     else:
@@ -81,6 +90,22 @@ def handle_stats_request(json):
 # ROBOT DO FUNCTIONS
 # --------------------------------------------------------------------------------------
 def robot_do(commands, vector_id, emit_logbook=True, args=None):
+    """
+
+    :type commands: str
+    :param commands: SDK/VectorCloud commands to be processed by robot_do in comma separated format
+
+    :type vector_id: int
+    :param vector_id: The database ID for the Vector you want robot_do to control. If empty this defaults to '1', which is the first Vector registered in the database
+
+    :type emit_logbook: bool
+    :param emit_logbook: Default is True, if set to False, the server will not refresh the logbook in the web client.
+
+    :type args: str
+    :param args: Arguments allow the command/script to set variables before executing commands. These are also in comma separated format.
+
+    :return: If emit_logbook is set to False, this function will return the response of all executed commands combined into one string. If emit_logbook is True, this function will return nothing, but request the logbook to update the web client
+    """
     vector = Vectors.query.filter_by(id=vector_id).first()
 
     if "script:" in commands:

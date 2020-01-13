@@ -1,0 +1,7 @@
+REST API
+========
+
+All REST API endpoints accept POST requests. 
+
+.. automodule:: vectorcloud.rest_api.resources
+    :members:
