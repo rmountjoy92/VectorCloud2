@@ -14,8 +14,13 @@ from vectorcloud.main.models import Logbook, Vectors, Scripts
 # --------------------------------------------------------------------------------------
 def get_stats(vector_id, return_stats=False):
     """
+    This function is the central function for getting statistic data from Vector.
+    It uses whatever SDK commands that I can find that return stats. When called
+    it will either return the stats, or emit them to the web client for updating the ui,
+    depending on the state of 'return_stats'
+
     :type vector_id: int
-    :param vector_id: The database ID for the Vector you want robot_do to control. If empty this defaults to '1', which is the first Vector registered in the database
+    :param vector_id: The database ID for the Vector you want to control. If empty this defaults to '1', which is the first Vector registered in the database
 
     :type return_stats: bool
     :param return_stats: Default is True, if set to False, the server will not emit the stats to the web client, instead it will return the response.
@@ -91,12 +96,22 @@ def handle_stats_request(json):
 # --------------------------------------------------------------------------------------
 def robot_do(commands, vector_id, emit_logbook=True, args=None):
     """
+    This function is the central function for passing commands to Vector. It is also
+    responsible for launching scripts, which in turn can import and call plugins.
+    Commands are given to function as a comma separated string - meaning you can send
+    multiple commands - just put a comma between them, no spaces. Arguments are provided
+    by the script or the user and are applied to the namespace before the commands are
+    run, simply by calling them like so: x = 1. Each command is run and logged in the
+    logbook item, if it run successfully, the output is logged, if it fails, the error
+    is logged. When it's done it either returns the result of the commands in a string
+    or it emits the logbook item to the web client, depending on the state of
+    emit_logbook. It then runs get_stats to update the web client with vector's new stats.
 
     :type commands: str
     :param commands: SDK/VectorCloud commands to be processed by robot_do in comma separated format
 
     :type vector_id: int
-    :param vector_id: The database ID for the Vector you want robot_do to control. If empty this defaults to '1', which is the first Vector registered in the database
+    :param vector_id: The database ID for the Vector you want to control. If empty this defaults to '1', which is the first Vector registered in the database
 
     :type emit_logbook: bool
     :param emit_logbook: Default is True, if set to False, the server will not refresh the logbook in the web client.
@@ -110,9 +125,9 @@ def robot_do(commands, vector_id, emit_logbook=True, args=None):
 
     if "script:" in commands:
         script_id_or_name = commands.split(":")[1]
-        # if "?" in script_id_or_name:
-        #     args = script_id_or_name.split("?")[1]
-        #     script_id_or_name = script_id_or_name.split("?")[0]
+        if "?" in script_id_or_name:
+            args = script_id_or_name.split("?")[1]
+            script_id_or_name = script_id_or_name.split("?")[0]
         script = Scripts.query.filter_by(id=script_id_or_name).first()
         if not script:
             script = Scripts.query.filter_by(name=script_id_or_name).first()
@@ -203,6 +218,22 @@ def get_logbook_html():
 
 
 def logbook_log(name, info=None, log_type=None, emit_logbook=True):
+    """
+    This function writes to the VectorCloud logbook. Optionally, it emits the logbook html to the web client to replace the current representation of the logbook in the web client.
+
+    :type name: str
+    :param name: a title for the logbook entry
+
+    :type info: str
+    :param info: info for the logbook entry (often used for storing the output of commands)
+
+    :type log_type: str
+    :param log_type: log type, changes some css classes in the web client, options are 'success', 'fail', None
+
+    :type emit_logbook: bool
+    :param emit_logbook: If emit_logbook is set to False, this function will return nothing. If emit_logbook is True, this function will emit the logbook to the web client
+
+    """
     log = Logbook()
     log.name = name
     log.info = info
@@ -257,6 +288,23 @@ def stream_video(vector_id):
 # SCRIPTS FUNCTIONS
 # --------------------------------------------------------------------------------------
 def add_edit_script(name, description, commands, script_id=None):
+    """
+    This function is what adds and edits scripts to the vectorcloud database. It is the basis for how plugins are installed.
+
+    :type name: str
+    :param name: Name of script
+
+    :type description: str
+    :param description: Short description of what script does
+
+    :type commands: str
+    :param commands: SDK/VectorCloud commands to be processed by robot_do in comma separated format
+
+    :type script_id: int
+    :param script_id: database id for script
+
+    :return: The script database object as a dict
+    """
     commands = commands.replace("\n", ",")
     if script_id:
         script = Scripts.query.filter_by(id=script_id).first()

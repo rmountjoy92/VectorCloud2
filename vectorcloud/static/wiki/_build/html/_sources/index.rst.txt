@@ -1,11 +1,19 @@
 Welcome to VectorCloud's documentation!
 =======================================
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Getting Started:
 
-    Core Utils <utils>
-    Rest API <api>
+    Installation <install>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development:
+
+    Main Utils <utils>
+    Database Models <models>
+    Rest API Usage <api-usage>
+    Rest API Reference <api>
 
 
 Indices and tables

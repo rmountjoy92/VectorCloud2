@@ -10,7 +10,7 @@ context processor to make the process functions available to every jinja templat
 Load orders in bundles are respected here"""
 
 """You can disable minification for debug purposes here (set to True) """
-debug_js = False
+debug_js = True
 debug_css = True
 
 

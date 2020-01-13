@@ -13,7 +13,9 @@ The REST API endpoints.
 
 class Version(Resource):
     """
-    /api/version
+    This resource will return the current version of VectorCloud
+
+    :url: /api/version
     """
     def put(self):
         api_key = "123456789"
@@ -25,7 +27,9 @@ class Version(Resource):
 
 class Stats(Resource):
     """
-    /api/stats
+    This resources calls the function: :func:`.get_stats`
+
+    :url: /api/stats
     """
     def put(self):
         api_key = "123456789"
@@ -38,7 +42,9 @@ class Stats(Resource):
 
 class RobotDo(Resource):
     """
-    /api/robot_do
+    This resources calls the function: :func:`.robot_do`
+
+    :url: /api/robot_do
     """
     def put(self):
         api_key = "123456789"

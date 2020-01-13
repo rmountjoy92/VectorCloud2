@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Core Utils &mdash; VectorCloud 2.0.0 documentation</title>
+  <title>Main Utils &mdash; VectorCloud 2.0.0 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="REST API" href="api.html" />
-    <link rel="prev" title="Welcome to VectorCloud’s documentation!" href="index.html" /> 
+    <link rel="next" title="Database Models" href="models.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,10 +80,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html"> Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Development:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"> Core Utils</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html"> Rest API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Main Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html"> Database Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api-usage.html"> Rest API Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"> Rest API Reference</a></li>
 </ul>
 
             
@@ -129,7 +135,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Core Utils</li>
+      <li>Main Utils</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -149,14 +155,37 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-vectorcloud.main.utils">
-<span id="core-utils"></span><h1>Core Utils<a class="headerlink" href="#module-vectorcloud.main.utils" title="Permalink to this headline">¶</a></h1>
+<span id="main-utils"></span><h1>Main Utils<a class="headerlink" href="#module-vectorcloud.main.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="vectorcloud.main.utils.add_edit_script">
+<code class="sig-prename descclassname">vectorcloud.main.utils.</code><code class="sig-name descname">add_edit_script</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">description</em>, <em class="sig-param">commands</em>, <em class="sig-param">script_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vectorcloud.main.utils.add_edit_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is what adds and edits scripts to the vectorcloud database. It is the basis for how plugins are installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of script</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – Short description of what script does</p></li>
+<li><p><strong>commands</strong> (<em>str</em>) – SDK/VectorCloud commands to be processed by robot_do in comma separated format</p></li>
+<li><p><strong>script_id</strong> (<em>int</em>) – database id for script</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The script database object as a dict</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="function">
 <dt id="vectorcloud.main.utils.get_stats">
 <code class="sig-prename descclassname">vectorcloud.main.utils.</code><code class="sig-name descname">get_stats</code><span class="sig-paren">(</span><em class="sig-param">vector_id</em>, <em class="sig-param">return_stats=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vectorcloud.main.utils.get_stats" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>This function is the central function for getting statistic data from Vector.
+It uses whatever SDK commands that I can find that return stats. When called
+it will either return the stats, or emit them to the web client for updating the ui,
+depending on the state of ‘return_stats’</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vector_id</strong> (<em>int</em>) – The database ID for the Vector you want robot_do to control. If empty this defaults to ‘1’, which is the first Vector registered in the database</p></li>
+<li><p><strong>vector_id</strong> (<em>int</em>) – The database ID for the Vector you want to control. If empty this defaults to ‘1’, which is the first Vector registered in the database</p></li>
 <li><p><strong>return_stats</strong> (<em>bool</em>) – Default is True, if set to False, the server will not emit the stats to the web client, instead it will return the response.</p></li>
 </ul>
 </dd>
@@ -167,13 +196,39 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="vectorcloud.main.utils.logbook_log">
+<code class="sig-prename descclassname">vectorcloud.main.utils.</code><code class="sig-name descname">logbook_log</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">info=None</em>, <em class="sig-param">log_type=None</em>, <em class="sig-param">emit_logbook=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vectorcloud.main.utils.logbook_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes to the VectorCloud logbook. Optionally, it emits the logbook html to the web client to replace the current representation of the logbook in the web client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – a title for the logbook entry</p></li>
+<li><p><strong>info</strong> (<em>str</em>) – info for the logbook entry (often used for storing the output of commands)</p></li>
+<li><p><strong>log_type</strong> (<em>str</em>) – log type, changes some css classes in the web client, options are ‘success’, ‘fail’, None</p></li>
+<li><p><strong>emit_logbook</strong> (<em>bool</em>) – If emit_logbook is set to False, this function will return nothing. If emit_logbook is True, this function will emit the logbook to the web client</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="vectorcloud.main.utils.robot_do">
 <code class="sig-prename descclassname">vectorcloud.main.utils.</code><code class="sig-name descname">robot_do</code><span class="sig-paren">(</span><em class="sig-param">commands</em>, <em class="sig-param">vector_id</em>, <em class="sig-param">emit_logbook=True</em>, <em class="sig-param">args=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vectorcloud.main.utils.robot_do" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>This function is the central function for passing commands to Vector. It is also
+responsible for launching scripts, which in turn can import and call plugins.
+Commands are given to function as a comma separated string - meaning you can send
+multiple commands - just put a comma between them, no spaces. Arguments are provided
+by the script or the user and are applied to the namespace before the commands are
+run, simply by calling them like so: x = 1. Each command is run and logged in the
+logbook item, if it run successfully, the output is logged, if it fails, the error
+is logged. When it’s done it either returns the result of the commands in a string
+or it emits the logbook item to the web client, depending on the state of
+emit_logbook. It then runs get_stats to update the web client with vector’s new stats.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>commands</strong> (<em>str</em>) – SDK/VectorCloud commands to be processed by robot_do in comma separated format</p></li>
-<li><p><strong>vector_id</strong> (<em>int</em>) – The database ID for the Vector you want robot_do to control. If empty this defaults to ‘1’, which is the first Vector registered in the database</p></li>
+<li><p><strong>vector_id</strong> (<em>int</em>) – The database ID for the Vector you want to control. If empty this defaults to ‘1’, which is the first Vector registered in the database</p></li>
 <li><p><strong>emit_logbook</strong> (<em>bool</em>) – Default is True, if set to False, the server will not refresh the logbook in the web client.</p></li>
 <li><p><strong>args</strong> (<em>str</em>) – Arguments allow the command/script to set variables before executing commands. These are also in comma separated format.</p></li>
 </ul>
@@ -194,10 +249,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api.html" class="btn btn-neutral float-right" title="REST API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="models.html" class="btn btn-neutral float-right" title="Database Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to VectorCloud’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

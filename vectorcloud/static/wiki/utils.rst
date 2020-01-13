@@ -1,4 +1,4 @@
-Core Utils
+Main Utils
 ==========
 
 .. automodule:: vectorcloud.main.utils
