@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Python Module Index &mdash; VectorCloud 2.0.0 documentation</title>
+  <title>REST API Usage &mdash; VectorCloud 2.0.0 documentation</title>
   
 
   
@@ -35,9 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
- 
-
-
+    <link rel="next" title="REST API Reference" href="api.html" />
+    <link rel="prev" title="Database Models" href="models.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,11 +88,11 @@
 <li class="toctree-l1"><a class="reference internal" href="scripts.html"> Scripts</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Development:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="plugins.html"> Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html"> Main Utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html"> Database Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api-usage.html"> Rest API Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Rest API Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html"> Rest API Reference</a></li>
 </ul>
 
@@ -140,10 +139,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Python Module Index</li>
+      <li>REST API Usage</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api-usage.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -155,50 +158,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-
-   <h1>Python Module Index</h1>
-
-   <div class="modindex-jumpbox">
-   <a href="#cap-v"><strong>v</strong></a>
-   </div>
-
-   <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-v"><td></td><td>
-       <strong>v</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <code class="xref">vectorcloud</code></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="models.html#module-vectorcloud.main.models"><code class="xref">vectorcloud.main.models</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="utils.html#module-vectorcloud.main.utils"><code class="xref">vectorcloud.main.utils</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api.html#module-vectorcloud.rest_api.resources"><code class="xref">vectorcloud.rest_api.resources</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="models.html#module-vectorcloud.user_system.models"><code class="xref">vectorcloud.user_system.models</code></a></td><td>
-       <em></em></td></tr>
-   </table>
+  <div class="section" id="rest-api-usage">
+<h1>REST API Usage<a class="headerlink" href="#rest-api-usage" title="Permalink to this headline">¶</a></h1>
+<dl>
+<dt>All REST API endpoints accept POST requests. All resources require the following:</dt><dd><ul class="simple">
+<li><p>API key</p></li>
+<li><p>Arguments for the function that the endpoint calls</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><p>To make Vector say ‘ping’ using the rest api, we would use the RobotDo resource and
+provide: api_key, vector_id, and commands</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">put</span>
+<span class="n">put</span><span class="p">(</span><span class="s1">&#39;http://localhost:4999/api/robot_do&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;api_key&#39;</span><span class="p">:</span> <span class="s1">&#39;123456789&#39;</span><span class="p">,</span> <span class="s1">&#39;vector_id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;commands&#39;</span><span class="p">:</span> <span class="s1">&#39;robot.behavior.say_text(&quot;ping&quot;)&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</dd>
+</dl>
+</div>
 
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="REST API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="models.html" class="btn btn-neutral float-left" title="Database Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

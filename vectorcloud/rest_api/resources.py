@@ -17,6 +17,7 @@ class Version(Resource):
 
     :url: /api/version
     """
+
     def put(self):
         api_key = "123456789"
         if request.form["api_key"] == api_key:
@@ -31,6 +32,7 @@ class Stats(Resource):
 
     :url: /api/stats
     """
+
     def put(self):
         api_key = "123456789"
         if request.form["api_key"] == api_key:
@@ -46,6 +48,7 @@ class RobotDo(Resource):
 
     :url: /api/robot_do
     """
+
     def put(self):
         api_key = "123456789"
         if request.form["api_key"] == api_key:

@@ -20,12 +20,18 @@ def get_stats(vector_id, return_stats=False):
     depending on the state of 'return_stats'
 
     :type vector_id: int
-    :param vector_id: The database ID for the Vector you want to control. If empty this defaults to '1', which is the first Vector registered in the database
+    :param vector_id: The database ID for the Vector you want to control. If empty
+                      this defaults to '1', which is the first Vector registered in
+                      the database
 
     :type return_stats: bool
-    :param return_stats: Default is True, if set to False, the server will not emit the stats to the web client, instead it will return the response.
+    :param return_stats: Default is False, if set to True, the server will not emit
+                         the stats to the web client, instead it will return the
+                         response.
 
-    :return: If return_stats is set to True, this function will return the response of the function as a dictionary object. If return_stats is False, this function will return nothing, but emit the stats to the web client
+    :return: If return_stats is set to True, this function will return the response
+             of the function as a dictionary object. If return_stats is False, this
+             function will return nothing, but emit the stats to the web client
     """
     if vector_id == "all":
         vectors = Vectors.query.all()
@@ -105,25 +111,34 @@ def robot_do(commands, vector_id, emit_logbook=True, args=None):
     logbook item, if it run successfully, the output is logged, if it fails, the error
     is logged. When it's done it either returns the result of the commands in a string
     or it emits the logbook item to the web client, depending on the state of
-    emit_logbook. It then runs get_stats to update the web client with vector's new stats.
+    emit_logbook. It then runs get_stats to update the web client with vector's
+    new stats.
 
     :type commands: str
-    :param commands: SDK/VectorCloud commands to be processed by robot_do in comma separated format
+    :param commands: SDK/VectorCloud commands to be processed by
+                     robot_do in comma separated format
 
     :type vector_id: int
-    :param vector_id: The database ID for the Vector you want to control. If empty this defaults to '1', which is the first Vector registered in the database
+    :param vector_id: The database ID for the Vector you want to control. If empty
+                      this defaults to '1', which is the first Vector registered
+                      in the database
 
     :type emit_logbook: bool
-    :param emit_logbook: Default is True, if set to False, the server will not refresh the logbook in the web client.
+    :param emit_logbook: Default is False, if set to True, the server will not refresh
+                         the logbook in the web client.
 
     :type args: str
-    :param args: Arguments allow the command/script to set variables before executing commands. These are also in comma separated format.
+    :param args: Arguments allow the command/script to set variables before executing
+                 commands. These are also in comma separated format.
 
-    :return: If emit_logbook is set to False, this function will return the response of all executed commands combined into one string. If emit_logbook is True, this function will return nothing, but request the logbook to update the web client
+    :return: If emit_logbook is set to False, this function will return the
+             response of all executed commands combined into one string.
+             If emit_logbook is True, this function will return nothing,
+             but request the logbook to update the web client
     """
     vector = Vectors.query.filter_by(id=vector_id).first()
 
-    if "script:" in commands:
+    if commands.find("script:") == 0:
         script_id_or_name = commands.split(":")[1]
         if "?" in script_id_or_name:
             args = script_id_or_name.split("?")[1]
@@ -133,6 +148,14 @@ def robot_do(commands, vector_id, emit_logbook=True, args=None):
             script = Scripts.query.filter_by(name=script_id_or_name).first()
         command_list = script.commands.split(",")
         commands_str = script.name
+        if args and script.args:
+            args = args.split(",")
+            for arg in script.args.split(","):
+                if arg not in args:
+                    args.append(arg)
+            args = ",".join(args)
+        else:
+            args = script.args
     else:
         command_list = commands.split(",")
         if len(command_list) > 1:
@@ -219,19 +242,25 @@ def get_logbook_html():
 
 def logbook_log(name, info=None, log_type=None, emit_logbook=True):
     """
-    This function writes to the VectorCloud logbook. Optionally, it emits the logbook html to the web client to replace the current representation of the logbook in the web client.
+    This function writes to the VectorCloud logbook. Optionally, it emits the logbook
+    html to the web client to replace the current representation of the logbook
+    in the web client.
 
     :type name: str
     :param name: a title for the logbook entry
 
     :type info: str
-    :param info: info for the logbook entry (often used for storing the output of commands)
+    :param info: info for the logbook entry (often used for storing the
+                 output of commands)
 
     :type log_type: str
-    :param log_type: log type, changes some css classes in the web client, options are 'success', 'fail', None
+    :param log_type: log type, changes some css classes in the web client, options
+                     are 'success', 'fail', None
 
     :type emit_logbook: bool
-    :param emit_logbook: If emit_logbook is set to False, this function will return nothing. If emit_logbook is True, this function will emit the logbook to the web client
+    :param emit_logbook: If emit_logbook is set to False, this function will return
+                         nothing. If emit_logbook is True, this function will emit
+                         the logbook to the web client
 
     """
     log = Logbook()
@@ -287,9 +316,10 @@ def stream_video(vector_id):
 # --------------------------------------------------------------------------------------
 # SCRIPTS FUNCTIONS
 # --------------------------------------------------------------------------------------
-def add_edit_script(name, description, commands, script_id=None):
+def add_edit_script(name, description, commands, args, script_id=None):
     """
-    This function is what adds and edits scripts to the vectorcloud database. It is the basis for how plugins are installed.
+    This function is what adds and edits scripts to the vectorcloud database.
+    It is the basis for how plugins are installed.
 
     :type name: str
     :param name: Name of script
@@ -298,10 +328,14 @@ def add_edit_script(name, description, commands, script_id=None):
     :param description: Short description of what script does
 
     :type commands: str
-    :param commands: SDK/VectorCloud commands to be processed by robot_do in comma separated format
+    :param commands: SDK/VectorCloud commands to be processed by robot_do in
+                     comma separated format
+
+    :type args: str
+    :param args: Default arguments to be set on script run in comma separated format
 
     :type script_id: int
-    :param script_id: database id for script
+    :param script_id: database id for script (if editing)
 
     :return: The script database object as a dict
     """
@@ -313,6 +347,7 @@ def add_edit_script(name, description, commands, script_id=None):
 
     script.name = name
     script.description = description
+    script.args = args
     script.commands = commands
     db.session.merge(script)
     db.session.commit()
@@ -328,6 +363,7 @@ def handle_add_edit_script(json):
         name=json["name"],
         description=json["description"],
         commands=json["commands"],
+        args=json["args"],
         script_id=json["script_id"],
     )
 

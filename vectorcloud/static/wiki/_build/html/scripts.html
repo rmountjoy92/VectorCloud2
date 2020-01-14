@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>REST API Reference &mdash; VectorCloud 2.0.0 documentation</title>
+  <title>Scripts &mdash; VectorCloud 2.0.0 documentation</title>
   
 
   
@@ -35,7 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="REST API Usage" href="api-usage.html" /> 
+    <link rel="next" title="Plugins" href="plugins.html" />
+    <link rel="prev" title="The Command Bar" href="commands.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,19 +81,23 @@
             
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html"> Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Adding a Vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html"> The Command Bar</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts.html"> Scripts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#script-basics">Script basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#script-arguments">Script arguments</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Development:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html"> Plugins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html"> Main Utils</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html"> Database Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api-usage.html"> Rest API Usage</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#"> Rest API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"> Rest API Reference</a></li>
 </ul>
 
             
@@ -138,13 +143,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>REST API Reference</li>
+      <li>Scripts</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/scripts.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -157,41 +162,48 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-vectorcloud.rest_api.resources">
-<span id="rest-api-reference"></span><h1>REST API Reference<a class="headerlink" href="#module-vectorcloud.rest_api.resources" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="vectorcloud.rest_api.resources.RobotDo">
-<em class="property">class </em><code class="sig-prename descclassname">vectorcloud.rest_api.resources.</code><code class="sig-name descname">RobotDo</code><a class="headerlink" href="#vectorcloud.rest_api.resources.RobotDo" title="Permalink to this definition">¶</a></dt>
-<dd><p>This resources calls the function: <a class="reference internal" href="utils.html#vectorcloud.main.utils.robot_do" title="vectorcloud.main.utils.robot_do"><code class="xref py py-func docutils literal notranslate"><span class="pre">robot_do()</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Url</dt>
-<dd class="field-odd"><p>/api/robot_do</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="class">
-<dt id="vectorcloud.rest_api.resources.Stats">
-<em class="property">class </em><code class="sig-prename descclassname">vectorcloud.rest_api.resources.</code><code class="sig-name descname">Stats</code><a class="headerlink" href="#vectorcloud.rest_api.resources.Stats" title="Permalink to this definition">¶</a></dt>
-<dd><p>This resources calls the function: <a class="reference internal" href="utils.html#vectorcloud.main.utils.get_stats" title="vectorcloud.main.utils.get_stats"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_stats()</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Url</dt>
-<dd class="field-odd"><p>/api/stats</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="class">
-<dt id="vectorcloud.rest_api.resources.Version">
-<em class="property">class </em><code class="sig-prename descclassname">vectorcloud.rest_api.resources.</code><code class="sig-name descname">Version</code><a class="headerlink" href="#vectorcloud.rest_api.resources.Version" title="Permalink to this definition">¶</a></dt>
-<dd><p>This resource will return the current version of VectorCloud</p>
-<dl class="field-list simple">
-<dt class="field-odd">Url</dt>
-<dd class="field-odd"><p>/api/version</p>
-</dd>
-</dl>
-</dd></dl>
-
+  <div class="section" id="scripts">
+<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="script-basics">
+<h2>Script basics<a class="headerlink" href="#script-basics" title="Permalink to this headline">¶</a></h2>
+<p>Scripts in VectorCloud can be as simple as sending one command to Vector to make
+him say hello, to hundreds (or thousands) of lines of code, creating complex
+routines and behaviors. You’ve probably seen the bar in VectorCloud that says
+“enter a command”, when you enter a command in that bar you just ran a script!</p>
+<p>Let’s make a script! Say we want to make Vector drive off his charger, play an
+animation, say something, then drive back on his charger, we would go to the scripts
+tab, click add script,  name it “Do things” and give it a description then
+enter this in commands:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">robot</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">drive_off_charger</span><span class="p">()</span>
+<span class="n">robot</span><span class="o">.</span><span class="n">anim</span><span class="o">.</span><span class="n">play_animation</span><span class="p">(</span><span class="s1">&#39;anim_turn_left_01&#39;</span><span class="p">)</span>
+<span class="n">robot</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">say_text</span><span class="p">(</span><span class="s2">&quot;Something!&quot;</span><span class="p">)</span>
+<span class="n">robot</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">drive_on_charger</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you’ve used the sdk before you’ll notice that you can use the object robot
+without connecting to a Vector, VectorCloud handles that automatically! Click save,
+then on the home screen of the web ui, enter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">script</span><span class="p">:</span><span class="n">Do</span> <span class="n">things</span>
+</pre></div>
+</div>
+<p>In the command bar of the Vector that you want to run the script on.</p>
+</div>
+<div class="section" id="script-arguments">
+<h2>Script arguments<a class="headerlink" href="#script-arguments" title="Permalink to this headline">¶</a></h2>
+<p>Scripts can also have arguments. Arguments are like settings that alter the way
+your script runs. Say we have a script named ‘Say text’ that looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">robot</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">say_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you know your python, you can tell that text is not in quotation marks, which means
+it’s a variable. You should also notice that we did not set the text variable equal to
+anything. To set that variable, when we call the script from the command bar,
+we’ll enter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>script:Say text?text=&quot;hello world&quot;
+</pre></div>
+</div>
+<p>Result: Vector should say ‘hello world’!</p>
+</div>
 </div>
 
 
@@ -202,8 +214,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="plugins.html" class="btn btn-neutral float-right" title="Plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="api-usage.html" class="btn btn-neutral float-left" title="REST API Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="commands.html" class="btn btn-neutral float-left" title="The Command Bar" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

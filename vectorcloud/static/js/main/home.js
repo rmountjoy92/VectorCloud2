@@ -158,6 +158,7 @@ $( document ).ready(function() {
             name: $("#add-edit-script-name").val(),
             description: $("#add-edit-script-description").val(),
             commands: $("#add-edit-script-commands").val(),
+            args: $("#add-edit-script-args").val(),
             script_id: $("#add-edit-script-id").val(),
         });
         $("#add-edit-script-form").trigger('reset');
@@ -173,6 +174,7 @@ function init_scripts() {
         $("#add-edit-script-name").val($(this).attr('data-name'));
         $("#add-edit-script-description").val($(this).attr('data-description'));
         $("#add-edit-script-commands").val($(this).attr('data-commands').replace(/,/g, '\n'));
+        $("#add-edit-script-args").val($(this).attr('data-args').replace(/,/g, '\n'));
         M.textareaAutoResize($('#add-edit-script-commands'));
         $("#add-edit-script-id").val($(this).attr('data-id'));
         M.updateTextFields();

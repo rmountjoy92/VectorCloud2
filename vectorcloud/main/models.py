@@ -123,6 +123,11 @@ class Scripts(db.Model):
     str - string of commands to be sent to robot_do formatted as comma separated string
     """
 
+    args = db.Column(db.String())
+    """
+    str - string of default arguments for scripts formatted as comma separated string
+    """
+
 
 db.create_all()
 db.session.commit()
