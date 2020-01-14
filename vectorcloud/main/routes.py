@@ -13,7 +13,7 @@ from flask import (
 )
 from flask_login import current_user
 from vectorcloud.main.models import Files, Vectors, Logbook
-from vectorcloud.main.utils import stream_video, logbook_log
+from vectorcloud.main.utils import stream_video
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
