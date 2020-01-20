@@ -1,15 +1,12 @@
 from flask import render_template, url_for, redirect, Blueprint
 from flask_login import login_user, logout_user, current_user
-from vectorcloud.user_system.forms import LoginForm
+from vectorcloud.user_system.forms import LoginForm, RegisterForm
 from vectorcloud.user_system.models import User
 from vectorcloud import bcrypt
 from vectorcloud.main.utils import public_route
 
 user_system = Blueprint("user_system", __name__)
 
-# *****REMINDER*****
-# user accounts for this platform can only be created/edited with the
-# functions in user_system.utils
 
 # ------------------------------------------------------------------------------
 # User system routes
@@ -19,6 +16,9 @@ user_system = Blueprint("user_system", __name__)
 @user_system.route("/login", methods=["GET", "POST"])
 def login():
     user = User.query.first()
+
+    if not user:
+        return redirect(url_for("user_system.welcome"))
 
     if current_user.is_authenticated:
         return redirect(url_for("main.home"))
@@ -46,3 +46,18 @@ def logout():
 
     logout_user()
     return redirect(url_for("user_system.login"))
+
+
+@public_route
+@user_system.route("/welcome")
+def welcome():
+    register_form = RegisterForm()
+    return render_template(
+        "user/welcome.html", title="Welcome", register_form=register_form
+    )
+
+
+@public_route
+@user_system.route("/add_user")
+def add_user():
+    pass

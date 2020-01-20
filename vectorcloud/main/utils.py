@@ -1,5 +1,7 @@
 import io
 import anki_vector
+from anki_vector import behavior
+from anki_vector.util import distance_mm, speed_mmps, degrees
 from flask_socketio import emit
 from flask import render_template
 from flask_login import current_user
@@ -100,7 +102,7 @@ def handle_stats_request(json):
 # --------------------------------------------------------------------------------------
 # ROBOT DO FUNCTIONS
 # --------------------------------------------------------------------------------------
-def robot_do(commands, vector_id, emit_logbook=True, args=None):
+def robot_do(commands, vector_id, emit_logbook=True):
     """
     This function is the central function for passing commands to Vector. It is also
     responsible for launching scripts, which in turn can import and call plugins.
@@ -127,35 +129,39 @@ def robot_do(commands, vector_id, emit_logbook=True, args=None):
     :param emit_logbook: Default is False, if set to True, the server will not refresh
                          the logbook in the web client.
 
-    :type args: str
-    :param args: Arguments allow the command/script to set variables before executing
-                 commands. These are also in comma separated format.
-
     :return: If emit_logbook is set to False, this function will return the
              response of all executed commands combined into one string.
              If emit_logbook is True, this function will return nothing,
              but request the logbook to update the web client
     """
     vector = Vectors.query.filter_by(id=vector_id).first()
+    args = []
 
     if commands.find("script:") == 0:
-        script_id_or_name = commands.split(":")[1]
-        if "?" in script_id_or_name:
-            args = script_id_or_name.split("?")[1]
-            script_id_or_name = script_id_or_name.split("?")[0]
+        commands = commands[7:]
+        if " --" in commands:
+            args = commands[commands.find(" --") :].split(" --")
+            script_id_or_name = commands[: commands.find(" --")]
+        else:
+            script_id_or_name = commands
         script = Scripts.query.filter_by(id=script_id_or_name).first()
         if not script:
             script = Scripts.query.filter_by(name=script_id_or_name).first()
+        elif not script:
+            logbook_log(
+                name=f"Script.{script_id_or_name} not found!",
+                info=None,
+                log_type="fail",
+                emit_logbook=emit_logbook,
+            )
+            return f"Script.{script_id_or_name} not found!"
+
         command_list = script.commands.split(",")
         commands_str = script.name
-        if args and script.args:
-            args = args.split(",")
-            for arg in script.args.split(","):
-                if arg not in args:
-                    args.append(arg)
-            args = ",".join(args)
-        else:
-            args = script.args
+        if script.args:
+            for arg in script.args.split(" --"):
+                args.append(arg)
+
     else:
         command_list = commands.split(",")
         if len(command_list) > 1:
@@ -163,8 +169,10 @@ def robot_do(commands, vector_id, emit_logbook=True, args=None):
         else:
             commands_str = commands
     if args:
-        for arg in args.split(","):
-            command_list.insert(0, arg)
+        for arg in args:
+            arg = arg.replace(" --", "")
+            if len(arg) > 0:
+                command_list.insert(0, arg)
     try:
         user_fname = current_user.fname
     except AttributeError:
@@ -314,6 +322,43 @@ def stream_video(vector_id):
 
 
 # --------------------------------------------------------------------------------------
+# REMOTE CONTROL
+# --------------------------------------------------------------------------------------
+def remote_control(keys, serial):
+    with anki_vector.Robot(serial) as robot:
+        move_dist = distance_mm(200)
+        if "shift" in keys:
+            drive_speed = speed_mmps(100)
+            turn_speed = 100
+        else:
+            drive_speed = speed_mmps(50)
+            turn_speed = 50
+        if "forward" in keys:
+            robot.behavior.drive_straight(move_dist, drive_speed)
+        elif "backward" in keys:
+            robot.behavior.drive_straight(move_dist * -1, drive_speed)
+        if "right" in keys:
+            robot.behavior.turn_in_place(degrees(-90))
+        if "left" in keys:
+            robot.behavior.turn_in_place(degrees(90))
+
+
+def input_test():
+    while True:
+        keys = []
+        key = input("enter direction:")
+        if "w" in key:
+            keys.append("forward")
+        if "s" in key:
+            keys.append("backward")
+        if "a" in key:
+            keys.append("left")
+        if "d" in key:
+            keys.append("right")
+        remote_control(keys, "009087e0")
+
+
+# --------------------------------------------------------------------------------------
 # SCRIPTS FUNCTIONS
 # --------------------------------------------------------------------------------------
 def add_edit_script(name, description, commands, args, script_id=None):
@@ -348,7 +393,10 @@ def add_edit_script(name, description, commands, args, script_id=None):
     script.name = name
     script.description = description
     script.args = args
-    script.commands = commands
+    if len(commands) > 0:
+        script.commands = commands
+    else:
+        script.commands = None
     db.session.merge(script)
     db.session.commit()
     return row2dict(script)
