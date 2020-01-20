@@ -13,7 +13,7 @@ from flask import (
 )
 from flask_login import current_user
 from vectorcloud.main.models import Files, Vectors, Logbook
-from vectorcloud.main.utils import stream_video
+from vectorcloud.main.utils import stream_video, public_route
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
@@ -40,14 +40,14 @@ def response_minify(response):
 # signed in.
 @main.before_app_request
 def check_valid_login():
-    if any(
-        [
-            request.endpoint.startswith("static"),
-            "/api/" in request.path,
-            current_user.is_authenticated,
-            getattr(app.view_functions[request.endpoint], "is_public", False),
-        ]
-    ):
+
+    if "/api/" in request.path:
+        return
+    elif current_user.is_authenticated:
+        return
+    elif getattr(app.view_functions[request.endpoint], "is_public", False):
+        return
+    elif request.endpoint.startswith("static"):
         return
 
     else:
@@ -67,6 +67,7 @@ def home():
     )
 
 
+@public_route
 @main.route("/video_feed?<vector_id>")
 def video_feed(vector_id):
     return Response(
