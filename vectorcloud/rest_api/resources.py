@@ -73,7 +73,8 @@ class VideoFeed(Resource):
         api_key = "123456789"
         if request.args["api_key"] == api_key:
             return Response(
-                stream_video(request.args["vector_id"]), mimetype="multipart/x-mixed-replace; boundary=frame"
+                stream_video(request.args["vector_id"]),
+                mimetype="multipart/x-mixed-replace; boundary=frame",
             )
         else:
             return {"response": "Unauthorized"}

@@ -1,6 +1,5 @@
 import io
 import anki_vector
-from anki_vector import behavior
 from anki_vector.util import distance_mm, speed_mmps, degrees
 from flask_socketio import emit
 from flask import render_template
@@ -106,8 +105,8 @@ def robot_do(commands, vector_id, emit_logbook=True):
     """
     This function is the central function for passing commands to Vector. It is also
     responsible for launching scripts, which in turn can import and call plugins.
-    Commands are given to function as a comma separated string - meaning you can send
-    multiple commands - just put a comma between them, no spaces. Arguments are provided
+    Commands are given to the function separated by '&&' - meaning you can send
+    multiple commands - just put a "&&" between them, no spaces. Arguments are provided
     by the script or the user and are applied to the namespace before the commands are
     run, simply by calling them like so: x = 1. Each command is run and logged in the
     logbook item, if it run successfully, the output is logged, if it fails, the error
@@ -118,7 +117,7 @@ def robot_do(commands, vector_id, emit_logbook=True):
 
     :type commands: str
     :param commands: SDK/VectorCloud commands to be processed by
-                     robot_do in comma separated format
+                     robot_do separated by '&&'
 
     :type vector_id: int
     :param vector_id: The database ID for the Vector you want to control. If empty
@@ -141,6 +140,8 @@ def robot_do(commands, vector_id, emit_logbook=True):
         commands = commands[7:]
         if " --" in commands:
             args = commands[commands.find(" --") :].split(" --")
+            for arg in args:
+                arg = arg.replace(" --", "")
             script_id_or_name = commands[: commands.find(" --")]
         else:
             script_id_or_name = commands
@@ -156,31 +157,29 @@ def robot_do(commands, vector_id, emit_logbook=True):
             )
             return f"Script.{script_id_or_name} not found!"
 
-        command_list = script.commands.split(",")
+        command_list = script.commands.split("\n")
         commands_str = script.name
         if script.args:
-            for arg in script.args.split(" --"):
+            for arg in script.args.split("\n"):
                 args.append(arg)
 
     else:
-        command_list = commands.split(",")
+        command_list = commands.split("&&")
         if len(command_list) > 1:
             commands_str = f"{len(command_list)} commands"
         else:
             commands_str = commands
     if args:
         for arg in args:
-            arg = arg.replace(" --", "")
             if len(arg) > 0:
                 command_list.insert(0, arg)
     try:
         user_fname = current_user.fname
     except AttributeError:
         user_fname = "The API"
-    nl = "\n"
     logbook_log(
         name=f"{user_fname} sent {vector.name} {commands_str}",
-        info=f"COMMANDS:\n{commands.replace(',', nl)}",
+        info=f"COMMANDS:\n{commands}",
         emit_logbook=emit_logbook,
     )
 
@@ -324,6 +323,13 @@ def stream_video(vector_id):
 # --------------------------------------------------------------------------------------
 # REMOTE CONTROL
 # --------------------------------------------------------------------------------------
+@socketio.on("start_rc")
+def handle_start_rc(json):
+    vector = Vectors.query.filter_by(id=json["vector_id"]).first()
+    while True:
+        socketio.on_event("rc_key", remote_control)
+
+
 def remote_control(keys, serial):
     with anki_vector.Robot(serial) as robot:
         move_dist = distance_mm(200)
@@ -384,7 +390,6 @@ def add_edit_script(name, description, commands, args, script_id=None):
 
     :return: The script database object as a dict
     """
-    commands = commands.replace("\n", ",")
     if script_id:
         script = Scripts.query.filter_by(id=script_id).first()
     else:

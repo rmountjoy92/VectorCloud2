@@ -120,12 +120,12 @@ class Scripts(db.Model):
 
     commands = db.Column(db.String())
     """
-    str - string of commands to be sent to robot_do formatted as comma separated string
+    str - string of commands to be sent to robot_do formatted as new-line separated string
     """
 
     args = db.Column(db.String())
     """
-    str - string of default arguments for scripts formatted as comma separated string
+    str - string of default arguments for scripts formatted as new-line separated string
     """
 
 
