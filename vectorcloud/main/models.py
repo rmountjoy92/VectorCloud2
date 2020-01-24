@@ -1,4 +1,5 @@
-from vectorcloud import db
+from vectorcloud import db, admin
+from flask_admin.contrib.sqla import ModelView
 
 
 class Files(db.Model):
@@ -60,6 +61,26 @@ class Logbook(db.Model):
     """
 
 
+class LogbookView(ModelView):
+    column_filters = [
+        "name",
+        "info",
+        "dt",
+        "log_type",
+    ]
+    column_searchable_list = [
+        "name",
+        "info",
+        "dt",
+        "log_type",
+    ]
+    can_create = False
+    can_edit = False
+
+
+admin.add_view(LogbookView(Logbook, db.session))
+
+
 class Vectors(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     """
@@ -102,6 +123,19 @@ class Vectors(db.Model):
     """
 
 
+class VectorsView(ModelView):
+    column_searchable_list = [
+        "serial",
+        "ip",
+        "name",
+        "custom_name",
+        "description",
+    ]
+
+
+admin.add_view(VectorsView(Vectors, db.session))
+
+
 class Scripts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     """
@@ -128,6 +162,19 @@ class Scripts(db.Model):
     str - string of default arguments for scripts formatted as new-line separated string
     """
 
+
+class ScriptsView(ModelView):
+    column_searchable_list = [
+        # "serial",
+        # "ip",
+        # "name",
+        # "custom_name",
+        # "description",
+    ]
+    column_exclude_list = ["commands", "args"]
+
+
+admin.add_view(ScriptsView(Scripts, db.session))
 
 db.create_all()
 db.session.commit()
