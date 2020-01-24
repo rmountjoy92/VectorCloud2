@@ -66,3 +66,5 @@ api.add_resource(Version, "/api/version")
 api.add_resource(Stats, "/api/stats")
 api.add_resource(RobotDo, "/api/robot_do")
 api.add_resource(VideoFeed, "/api/video_feed")
+
+from vectorcloud.admin_system.views import *

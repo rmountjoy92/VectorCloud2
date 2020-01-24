@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
     str - password for login
     """
 
-    fname = db.Column(db.String())
+    fname = db.Column(db.String(), nullable=False)
     """
     str - user's first name
     """
@@ -37,17 +37,7 @@ class User(db.Model, UserMixin):
     str - user's last name
     """
 
-    phone = db.Column(db.String())
-    """
-    str - user's phone number
-    """
-
-    avatar = db.Column(db.String())
-    """
-    str - an image to represent the user
-    """
-
-    role = db.Column(db.String())
+    role = db.Column(db.String(), nullable=False)
     """
     str - the user's permission level
     """
@@ -55,6 +45,7 @@ class User(db.Model, UserMixin):
 
 class UserView(ModelView):
     column_exclude_list = ["password"]
+    column_display_pk = True
 
     def on_model_change(self, form, model, is_created):
         hashed_password = bcrypt.generate_password_hash(model.password).decode("utf-8")
@@ -65,6 +56,20 @@ class UserView(ModelView):
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for("permission_denied.index"))
+    column_searchable_list = [
+        "id",
+        "email",
+        "fname",
+        "lname",
+        "role",
+    ]
+    column_filters = [
+        "id",
+        "email",
+        "fname",
+        "lname",
+        "role",
+    ]
 
 
 admin.add_view(UserView(User, db.session))

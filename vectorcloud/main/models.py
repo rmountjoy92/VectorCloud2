@@ -1,5 +1,7 @@
 from vectorcloud import db, admin
 from flask_admin.contrib.sqla import ModelView
+from wtforms.fields import TextAreaField
+
 
 
 class Files(db.Model):
@@ -76,6 +78,9 @@ class LogbookView(ModelView):
     ]
     can_create = False
     can_edit = False
+    column_default_sort = ('dt', True)
+    column_labels = dict(dt='Time', name="Name", info="Info", log_type="Log Type")
+    can_set_page_size = True
 
 
 admin.add_view(LogbookView(Logbook, db.session))
@@ -131,6 +136,7 @@ class VectorsView(ModelView):
         "custom_name",
         "description",
     ]
+    column_display_pk = True
 
 
 admin.add_view(VectorsView(Vectors, db.session))
@@ -165,13 +171,22 @@ class Scripts(db.Model):
 
 class ScriptsView(ModelView):
     column_searchable_list = [
-        # "serial",
-        # "ip",
-        # "name",
-        # "custom_name",
-        # "description",
+        "id",
+        "name",
+        "description",
     ]
     column_exclude_list = ["commands", "args"]
+    column_display_pk = True
+    can_set_page_size = True
+    form_overrides = dict(description=TextAreaField, commands=TextAreaField, args=TextAreaField)
+    form_widget_args = {
+        'commands': {
+            'style': 'font-family: monospace;'
+        },
+        'args': {
+            'style': 'font-family: monospace;'
+        }
+    }
 
 
 admin.add_view(ScriptsView(Scripts, db.session))
