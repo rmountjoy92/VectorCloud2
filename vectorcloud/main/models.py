@@ -3,7 +3,6 @@ from flask_admin.contrib.sqla import ModelView
 from wtforms.fields import TextAreaField
 
 
-
 class Files(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     """
@@ -78,8 +77,8 @@ class LogbookView(ModelView):
     ]
     can_create = False
     can_edit = False
-    column_default_sort = ('dt', True)
-    column_labels = dict(dt='Time', name="Name", info="Info", log_type="Log Type")
+    column_default_sort = ("dt", True)
+    column_labels = dict(dt="Time", name="Name", info="Info", log_type="Log Type")
     can_set_page_size = True
 
 
@@ -178,14 +177,12 @@ class ScriptsView(ModelView):
     column_exclude_list = ["commands", "args"]
     column_display_pk = True
     can_set_page_size = True
-    form_overrides = dict(description=TextAreaField, commands=TextAreaField, args=TextAreaField)
+    form_overrides = dict(
+        description=TextAreaField, commands=TextAreaField, args=TextAreaField
+    )
     form_widget_args = {
-        'commands': {
-            'style': 'font-family: monospace;'
-        },
-        'args': {
-            'style': 'font-family: monospace;'
-        }
+        "commands": {"style": "font-family: monospace;"},
+        "args": {"style": "font-family: monospace;"},
     }
 
 

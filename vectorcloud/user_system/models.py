@@ -56,6 +56,7 @@ class UserView(ModelView):
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for("permission_denied.index"))
+
     column_searchable_list = [
         "id",
         "email",
