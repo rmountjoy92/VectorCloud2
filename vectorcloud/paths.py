@@ -13,6 +13,8 @@ root_folder = get_root_folder()
 
 vc_folder = os.path.join(root_folder, "vectorcloud")
 
+templates_folder = os.path.join(vc_folder, "templates")
+
 static_folder = os.path.join(vc_folder, "static")
 
 plugins_folder = os.path.join(vc_folder, "plugins")

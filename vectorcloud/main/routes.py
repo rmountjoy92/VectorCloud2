@@ -14,6 +14,7 @@ from flask import (
 from flask_login import current_user
 from vectorcloud.main.models import Files, Vectors, Logbook
 from vectorcloud.main.utils import stream_video, public_route
+from vectorcloud.plugins.utils import run_plugin
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
@@ -61,10 +62,12 @@ def check_valid_login():
 @main.route("/home", methods=["GET", "POST"])
 def home():
     vectors = Vectors.query.all()
-    logbook_items = Logbook.query.all()
-    return render_template(
-        "main/home.html", vectors=vectors, logbook_items=logbook_items
-    )
+    return render_template("main/home.html", vectors=vectors)
+
+
+@main.route("/run", methods=["GET"])
+def run():
+    return run_plugin("say", {"vector_id": 1})
 
 
 @public_route

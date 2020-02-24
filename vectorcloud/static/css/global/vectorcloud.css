@@ -583,7 +583,7 @@ input:disabled {
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
-#slide-out-right.sidenav #activity .header-search-input {
+#slide-out-right.sidenav .timeline .header-search-input {
     background-color: var(--theme-background);
 }
 

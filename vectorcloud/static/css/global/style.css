@@ -3070,7 +3070,7 @@ nav.display-none.search-sm .nav-wrapper form .input-field input.search-box-sm:no
 {
     padding: .7rem;
 }
-#slide-out-right.sidenav #activity .header-search-input
+#slide-out-right.sidenav .timeline .header-search-input
 {
     width: 86%;
     height: 2.8rem;
@@ -3162,12 +3162,12 @@ nav.display-none.search-sm .nav-wrapper form .input-field input.search-box-sm:no
     border-bottom: 1px solid #f5f5f5;
 }
 
-#activity ul.collection
+.timeline ul.collection
 {
     max-height: 100% !important;
 }
 
-#activity .collection::before
+.timeline .collection::before
 {
     position: absolute;
     top: 1rem;
@@ -3182,7 +3182,7 @@ nav.display-none.search-sm .nav-wrapper form .input-field input.search-box-sm:no
     background-color: #e0e0e0;
 }
 
-#activity .collection-item::before
+.timeline .collection-item::before
 {
     font-family: 'Material Icons';
     font-size: 1rem;
@@ -3196,29 +3196,29 @@ nav.display-none.search-sm .nav-wrapper form .input-field input.search-box-sm:no
     border-radius: 100%;
 }
 
-#activity .collection
+.timeline .collection
 {
     border: none;
 }
-#activity .collection .collection-item
+.timeline .collection .collection-item
 {
     margin-bottom: 1rem;
     padding-left: 2rem;
 
     border: none;
 }
-#activity .collection .collection-item p
+.timeline .collection .collection-item p
 {
     font-size: .9rem;
 }
-#activity .collection .collection-item .badge
+.timeline .collection .collection-item .badge
 {
     float: none;
 
     margin: 0;
     padding: .3rem .5rem .4rem .5rem;
 }
-#activity .collection .collection-item .secondary-content
+.timeline .collection .collection-item .secondary-content
 {
     font-size: .9rem;
 

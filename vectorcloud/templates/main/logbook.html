@@ -1,6 +1,5 @@
-{% from 'main/logbook-rows.html' import LogbookRows with context %}
 
-{% macro LogBook() %}
+{% macro LogBook(vector_id) %}
     <div id="logbook-info-modal" class="modal">
         <div class="modal-content">
             <h6 id="logbook-info-title" class="center"></h6>
@@ -10,7 +9,7 @@
         </div>
     </div>
     <div class="row mt-2">
-        <div id="activity" class="col s12">
+        <div class="timeline col s12">
             <div class="activity">
 
                 <div id="feed-filters-row" class="row hide">
@@ -27,8 +26,7 @@
                 </div>
 
                 <div class="row scrollbar" id="feed-body" style="max-height: calc(100vh - 330px); min-height: calc(100vh - 330px);">
-                    <ul id="feed-rows-ul" class="collection with-header">
-
+                    <ul id="feed-rows-ul-{{ vector_id }}" class="collection with-header feed-rows-ul">
                     </ul>
                 </div>
             </div>

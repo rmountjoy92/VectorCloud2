@@ -1,7 +1,8 @@
 from flask import request, Response
 from flask_restful import Resource
 from vectorcloud.version import vectorcloud_version
-from vectorcloud.main.utils import get_stats, robot_do, stream_video
+from vectorcloud.main.utils import stream_video
+from vectorcloud.plugins.utils import run_plugin
 
 
 """
@@ -26,40 +27,24 @@ class Version(Resource):
             return {"response": "Unauthorized"}
 
 
-class Stats(Resource):
-    """
-    This resources calls the function: :func:`.get_stats`
-
-    :url: /api/stats
-    """
-
-    def get(self):
-        api_key = "123456789"
-        if request.args["api_key"] == api_key:
-            response = get_stats(vector_id=request.args["vector_id"], return_stats=True)
-            return {"stats": response}
-        else:
-            return {"response": "Unauthorized"}
-
-
-class RobotDo(Resource):
+class RunPlugin(Resource):
     """
     This resources calls the function: :func:`.robot_do`
 
-    :url: /api/robot_do
+    :url: /api/run
     """
 
     def get(self):
         api_key = "123456789"
         if request.args["api_key"] == api_key:
-            response = robot_do(
-                commands=request.args["commands"],
-                vector_id=request.args["vector_id"],
-                emit_logbook=False,
-            )
-            return {"output": response}
+            options = {}
+            for key, value in request.args.items():
+                options[key] = value
+            output = run_plugin(request.args.get("name"), options)
+            return output
         else:
             return {"response": "Unauthorized"}
+        return "ok"
 
 
 class VideoFeed(Resource):

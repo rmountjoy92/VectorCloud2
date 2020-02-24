@@ -11,28 +11,17 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
 from configparser import ConfigParser
-from flask_admin import Admin, AdminIndexView, expose
-
-
-class VectorCloudAdmin(AdminIndexView):
-    @expose("/")
-    def index(self):
-        return self.render("admin/vectorcloud_admin.html")
 
 
 app = Flask(__name__)
 cache = Cache(app, config={"CACHE_TYPE": "simple"})
 api = Api(app)
 avatars = Avatars(app)
-admin = Admin(
-    app, name="VectorCloud", template_mode="bootstrap3", index_view=VectorCloudAdmin()
-)
 
 app.config["AVATARS_IDENTICON_BG"] = (255, 255, 255)
 app.config["SECRET_KEY"] = "66532a62c4048f976e22a39638b6f10e"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
-app.config["FLASK_ADMIN_SWATCH"] = "vector"
 
 # scheduler config
 app.config["SCHEDULER_API_ENABLED"] = True
@@ -63,8 +52,7 @@ app.register_blueprint(error_pages)
 from vectorcloud.rest_api.resources import *
 
 api.add_resource(Version, "/api/version")
-api.add_resource(Stats, "/api/stats")
-api.add_resource(RobotDo, "/api/robot_do")
 api.add_resource(VideoFeed, "/api/video_feed")
+api.add_resource(RunPlugin, "/api/run")
 
-from vectorcloud.admin_system.views import *
+from vectorcloud.main.sockets import *

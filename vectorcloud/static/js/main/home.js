@@ -2,7 +2,6 @@ var socket = io();
 socket.on('connect', function() {
     socket.emit('request_stats', {vector_id: "all"});
     socket.emit('request_logbook');
-    socket.emit('request_scripts');
 });
 socket.on('stats', function(stats) {
     console.log(stats)
@@ -47,13 +46,10 @@ socket.on('server_message', function(message) {
 });
 
 socket.on('logbook', function(message) {
-    $("#feed-rows-ul").empty();
-    $("#feed-rows-ul").append(message);
-});
-
-socket.on('scripts', function(message) {
-    $("#scripts-collection").empty();
-    $("#scripts-collection").append(message);
+    $.each(message, function(key, value) {
+        $("#feed-rows-ul-" + key).empty();
+        $("#feed-rows-ul-" + key).append(value);
+    });
 });
 
 $( document ).ready(function() {
@@ -73,15 +69,13 @@ $( document ).ready(function() {
 
     $(".status-docked").on('click', function(e) {
         if ($(this).hasClass('theme-primary-text')){
-            socket.emit('request_robot_do', {
-                command: "robot.behavior.drive_off_charger()",
-                refresh_stats: true,
+            socket.emit('run_plugin', {
+                name: "undock",
                 vector_id: $(this).attr("data-id")
             });
         } else {
-            socket.emit('request_robot_do', {
-                command: "robot.behavior.drive_on_charger()",
-                refresh_stats: true,
+            socket.emit('run_plugin', {
+                name: "dock",
                 vector_id: $(this).attr("data-id")
             });
         }
@@ -89,8 +83,9 @@ $( document ).ready(function() {
     });
 
     $(".ping-vector").on('click', function(e) {
-        socket.emit('request_robot_do', {
-            command: "robot.behavior.say_text('ping')",
+        socket.emit('run_plugin', {
+            name: "say",
+            text_to_say: 'ping',
             vector_id: $(this).attr("data-id")
         });
     });
@@ -153,34 +148,7 @@ $( document ).ready(function() {
         socket.emit('logbook_log', {name: name + " closed the stream.", log_type: 'success'});
     });
 
-    $("#add-edit-script-save-btn").on('click', function(e) {
-        socket.emit('add_edit_script', {
-            name: $("#add-edit-script-name").val(),
-            description: $("#add-edit-script-description").val(),
-            commands: $("#add-edit-script-commands").val(),
-            args: $("#add-edit-script-args").val(),
-            script_id: $("#add-edit-script-id").val(),
-        });
-        $("#add-edit-script-form").trigger('reset');
-        $("#add-edit-script-modal").modal('close');
-        socket.emit("request_scripts");
-    });
-
 });
-
-function init_scripts() {
-    $(".edit-script-btn").on('click', function(e) {
-        $("#add-edit-script-form").trigger('reset');
-        $("#add-edit-script-name").val($(this).attr('data-name'));
-        $("#add-edit-script-description").val($(this).attr('data-description'));
-        $("#add-edit-script-commands").val($(this).attr('data-commands').replace(/,/g, '\n'));
-        $("#add-edit-script-args").val($(this).attr('data-args').replace(' --', '\n'));
-        M.textareaAutoResize($('#add-edit-script-commands'));
-        $("#add-edit-script-id").val($(this).attr('data-id'));
-        M.updateTextFields();
-        $("#add-edit-script-modal").modal('open');
-    });
-}
 
 function init_logbook() {
     $(".show-logbook-info").on('click', function(e) {

@@ -1,14 +1,18 @@
-#activity #feed-rows-ul::before {
-    margin: 0;
-    left: 7px;
+.timeline .feed-rows-ul::before {
+    margin: 0 !important;
+    left: 7px  !important;
 }
-#activity #feed-rows-ul .collection-item::before {
-    margin: 0;
-    left: 0;
+.timeline .feed-rows-ul .collection-item::before {
+    margin: 0  !important;
+    left: 0  !important;
 }
-#activity #feed-rows-ul .successful_cmd .collection-item::before {
-    color: var(--theme-success);
+.timeline .feed-rows-ul .successful_cmd .collection-item::before {
+    color: var(--theme-success)  !important;
 }
-#activity #feed-rows-ul .failed_cmd .collection-item::before {
-    color: var(--theme-warning);
+.timeline .feed-rows-ul .failed_cmd .collection-item::before {
+    color: var(--theme-warning)  !important;
+}
+
+.timeline .collection .collection-item {
+    background: var(--theme-surface);
 }
