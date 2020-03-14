@@ -18,4 +18,3 @@ flask_caching
 flask-socketio
 sphinx
 sphinx_rtd_theme
-gevent

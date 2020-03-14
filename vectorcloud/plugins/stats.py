@@ -44,7 +44,6 @@ class Plugin:
 
             version_state = robot.get_version_state()
             battery_state = robot.get_battery_state()
-            robot.disconnect()
 
             response["version"] = version_state.os_version
             response["battery_voltage"] = battery_state.battery_volts

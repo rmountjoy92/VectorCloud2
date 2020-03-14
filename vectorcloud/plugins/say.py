@@ -1,6 +1,6 @@
 import anki_vector
 from vectorcloud.main.models import Vectors
-from vectorcloud.plugins.utils import run_plugin
+from vectorcloud.plugins.utils import run_plugin, CaptureOutput
 
 
 class Plugin:
@@ -28,28 +28,17 @@ class Plugin:
         vector = Vectors.query.filter_by(id=self.vector_id).first()
 
         # try to send to command to the robot, log the result
-        try:
+        with CaptureOutput() as output:
             with anki_vector.Robot(vector.serial) as robot:
                 output = str(robot.behavior.say_text(self.text_to_say))
                 run_plugin(
                     "log",
                     {
-                        "name": f"{vector.name} completed 'say' successfully",
+                        "name": f"{vector.name} ran say.",
                         "vector_id": vector.id,
                         "info": output,
                         "log_type": "success",
                     },
                 )
-        except Exception as e:
-            run_plugin(
-                "log",
-                {
-                    "name": f"{vector.name} failed to run 'say'",
-                    "vector_id": vector.id,
-                    "info": str(e),
-                    "log_type": "fail",
-                },
-            )
-            return str(e)
 
         return output
