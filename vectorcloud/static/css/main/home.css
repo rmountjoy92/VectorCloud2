@@ -16,3 +16,43 @@
 .timeline .collection .collection-item {
     background: var(--theme-surface);
 }
+#feed-body {
+    max-height: calc(100vh - 390px);
+    min-height: calc(100vh - 390px);
+}
+.vector-card {
+    max-height: calc(100vh - 30px);
+    min-height: calc(100vh - 30px);
+}
+#vector-cards-row {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
+#settings-sidenav {
+    height: 100vh;
+    top: 0;
+    overflow-y: scroll;
+}
+#settings-sidenav li a i {
+    margin-right: .5rem;
+}
+#settings-sidenav li a.active i {
+    color: var(--theme-primary);
+}
+@media only screen and (min-width: 993px)
+{
+    #settings-sidenav
+    {
+        width: 50vw;
+    }
+}
+@media only screen and (max-width: 993px)
+{
+    #settings-sidenav
+    {
+        width: 100vw;
+    }
+}
+#close-settings-sidenav-btn {
+    z-index: 1000;
+}

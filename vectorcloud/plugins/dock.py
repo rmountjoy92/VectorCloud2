@@ -5,9 +5,21 @@ from vectorcloud.plugins.utils import run_plugin
 
 class Plugin:
     def __init__(self, *args, **kwargs):
+        self.vc_required = True
 
         # tell vectorcloud what settings are available for this plugin
-        self.plugin_settings = ["vector_id"]
+        self.plugin_settings = [
+            {
+                "name": "vector_id",
+                "default": "first entry",
+                "description": "which vector id to use for the command",
+            },
+            {
+                "name": "log",
+                "default": "True",
+                "description": "create a log item when plugin is ran",
+            },
+        ]
 
         # describe what this plugin does
         self.plugin_description = "Dock vector"
@@ -21,33 +33,30 @@ class Plugin:
             vector = Vectors.query.first()
             self.vector_id = vector.id
 
+        if not hasattr(self, "log"):
+            self.log = True
+
     def run(self):
         # get the vector's database entry
         vector = Vectors.query.filter_by(id=self.vector_id).first()
 
         # try to send to command to the robot, log the result
-        try:
-            with anki_vector.Robot(vector.serial) as robot:
+        with anki_vector.Robot(vector.serial) as robot:
+            try:
                 output = str(robot.behavior.drive_on_charger())
-                run_plugin(
-                    "log",
-                    {
-                        "name": f"{vector.name} docked",
-                        "vector_id": vector.id,
-                        "info": output,
-                        "log_type": "success",
-                    },
-                )
-        except Exception as e:
+            except Exception as e:
+                output = e
+
+        if self.log is True:
+            info = f"vector_id: {self.vector_id} \n \n output: {output}"
             run_plugin(
                 "log",
                 {
-                    "name": f"{vector.name} failed to dock",
+                    "name": f"{vector.name} ran dock",
                     "vector_id": vector.id,
-                    "info": str(e),
-                    "log_type": "fail",
+                    "info": info,
+                    "log_type": "success",
                 },
             )
-            return str(e)
-
+        run_plugin("stats", {"vector_id": vector.id, "log": False})
         return output

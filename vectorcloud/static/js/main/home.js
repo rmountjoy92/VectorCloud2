@@ -53,6 +53,11 @@ socket.on('logbook', function(message) {
 });
 
 $( document ).ready(function() {
+    $('#settings-sidenav').sidenav({
+        edge: 'right',
+        draggable: false,
+    });
+
     $("#logbook-info-modal").modal();
     $("#add-edit-script-modal").modal();
 
@@ -146,6 +151,25 @@ $( document ).ready(function() {
         $("#status-video-feed-" + id).attr("src", "static/images/avatar.jpg");
         $("#status-video-feed-row-" + id).addClass('hide');
         socket.emit('logbook_log', {name: name + " closed the stream.", log_type: 'success'});
+    });
+
+    var plugins = {}
+    $(".plugin-name").each(function(e) {
+        plugins[$(this).text()] = null
+    });
+
+    $('.command-bar').autocomplete({
+        data: plugins,
+    });
+
+    $("#open-settings-sidenav-btn").on('click', function(e) {
+        $("#settings-sidenav").sidenav('open');
+        $("#close-settings-sidenav-btn").removeClass('hide');
+    });
+
+    $("#close-settings-sidenav-btn").on('click', function(e) {
+        $("#settings-sidenav").sidenav('close');
+        $(this).addClass('hide');
     });
 
 });

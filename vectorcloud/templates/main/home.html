@@ -6,23 +6,105 @@
 {% endblock page_vendor_css %}
 
 {% block page_lvl_css %}
-    {{ process_css_sources(src="main/home.css")|safe }}
+{{ process_css_sources(src="main/home.css")|safe }}
 {% endblock page_lvl_css %}
 
 {% block content %}
+    <div id="settings-sidenav" class="sidenav">
+        <div class="row mt-2">
+            <div class="col s12">
+                <ul class="tabs tabs-fixed-width">
+                    <li class="tab col s3"><a href="#plugins-tab" class="active">
+                        <span class="center-align">
+                            <i class="material-icons-outlined">extension</i>
+                            <span class="font-weight-900 left">Plugins</span>
+                        </span>
+                    </a></li>
+
+                    <li class="tab col s3"><a href="#settings-tab">
+                        <span class="center-align">
+                            <i class="material-icons-outlined">settings</i>
+                            <span class="font-weight-900 left">Settings</span>
+                        </span>
+                    </a></li>
+
+                    <li class="tab col s3"><a href="#users-tab">
+                        <span class="center-align">
+                            <i class="material-icons-outlined">person</i>
+                            <span class="font-weight-900 left">Users</span>
+                        </span>
+                    </a></li>
+
+                </ul>
+            </div>
+            <div id="plugins-tab" class="col s12">
+                <div class="row card-filter-container">
+                    <div class="col s12 input-field">
+                        <span>
+                            <i class="material-icons prefix card-search-icon">search</i>
+                            <input type="text" id="plugins-tab-search" class="card-filter" placeholder="Search plugins">
+                        </span>
+                    </div>
+                </div>
+                {% for plugin in plugins %}
+                    <div class="card theme-surface-1">
+                        <div class="card-content">
+                            <h5 class="plugin-name">{{ plugin['name'] }}</h5>
+                            <span>{{ plugin['description'] }}</span>
+                            <div class="divider"></div>
+                            <h6>Options</h6>
+                            <table class="responsive-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Default</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for option in plugin['options'] %}
+                                        <tr>
+                                            <td class="selectable-all">{{ option['name'] }}</td>
+                                            <td>{{ option['default'] }}</td>
+                                            <td>{{ option['description'] }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="users-tab" class="col s12">Users</div>
+            <div id="settings-tab" class="col s12">settings</div>
+        </div>
+    </div>
+
     <div id="main" class="main-full">
         <div class="container">
-            <div class="row">
+            <div id="vector-cards-row" class="row">
                 {{ VectorCards() }}
             </div>
         </div>
     </div>
+
+    <div id="close-settings-sidenav-btn" class="fixed-action-btn hide">
+        <a class="btn-floating btn-large theme-primary">
+            <i class="large material-icons">close</i>
+        </a>
     </div>
+
+    <div id="open-settings-sidenav-btn" class="fixed-action-btn">
+        <a class="btn-floating btn-large theme-primary">
+            <i class="large material-icons">menu_open</i>
+        </a>
+    </div>
+
 {% endblock content %}
 
 {% block page_vendor_js %}
 {% endblock page_vendor_js %}
 
 {% block page_lvl_js %}
-    {{ process_js_sources(src="main/home.js")|safe }}
+{{ process_js_sources(src="main/home.js")|safe }}
 {% endblock page_lvl_js %}

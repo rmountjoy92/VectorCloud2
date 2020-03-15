@@ -6,9 +6,23 @@ from vectorcloud.plugins.utils import run_plugin
 
 class Plugin:
     def __init__(self, *args, **kwargs):
+        self.vc_required = True
+
+        self.plugin_description = "None"
 
         # tell vectorcloud what settings are available for this plugin
-        self.plugin_settings = ["vector_id"]
+        self.plugin_settings = [
+            {
+                "name": "vector_id",
+                "default": "all",
+                "description": "which vector id to use for the command",
+            },
+            {
+                "name": "log",
+                "default": "True",
+                "description": "create a log item when plugin is ran",
+            },
+        ]
 
         # parse user supplied plugin settings
         for key, value in kwargs.items():
@@ -17,6 +31,8 @@ class Plugin:
         # set defaults for omitted options
         if not hasattr(self, "vector_id"):
             self.vector_id = "all"
+        if not hasattr(self, "log"):
+            self.log = True
 
     def run(self):
         if self.vector_id == "all":
@@ -54,15 +70,16 @@ class Plugin:
             response["cube_battery_volts"] = battery_state.cube_battery.battery_volts
 
             emit("stats", response, broadcast=True, namespace="/")
-            run_plugin(
-                "log",
-                {
-                    "name": f"{vector.name} reported its stats",
-                    "vector_id": vector.id,
-                    "info": str(response),
-                    "log_type": "success",
-                },
-            )
+            if self.log is True:
+                run_plugin(
+                    "log",
+                    {
+                        "name": f"{vector.name} reported its stats",
+                        "vector_id": vector.id,
+                        "info": str(response),
+                        "log_type": "success",
+                    },
+                )
             responses.append(response)
 
         if len(responses) > 1:

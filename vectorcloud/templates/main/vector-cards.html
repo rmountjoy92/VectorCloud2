@@ -2,8 +2,8 @@
 {% from 'main/logbook.html' import LogBook with context %}
 {% macro VectorCards() %}
     {% for vector in vectors %}
-        <div class="col s12 m6 l3">
-            <div class="card">
+        <div class="col s12 m6 l4 xl3">
+            <div class="card vector-card">
                 <div class="card-content">
                     <div class="row center-align">
                         <img id="status-connected-{{ vector.name }}" src="static/images/icons/vector.svg" height="80px">
@@ -34,7 +34,7 @@
                     <div id="status-logbook-row-{{ vector.id }}" class="status-tabs-{{ vector.id }}">
                         <div class="divider"></div>
                         <div class="row">
-                            <div class="col s12">
+                            <div class="col s12 pr-0">
                                 <h5>Logbook</h5>
                                 <div class="status-logbook-container-{{ vector.id }}">
                                     {{LogBook(vector.id)}}

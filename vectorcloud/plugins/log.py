@@ -7,9 +7,31 @@ from vectorcloud.main.utils import get_logbook_html
 
 class Plugin:
     def __init__(self, *args, **kwargs):
+        self.vc_required = True
 
         # tell vectorcloud what settings are available for this plugin
-        self.plugin_settings = ["name", "vector_id", "info", "log_type", "emit_only"]
+        self.plugin_settings = [
+            {
+                "name": "name",
+                "default": "Unnamed logbook item",
+                "description": "title of the newly created log item",
+            },
+            {
+                "name": "vector_id",
+                "default": "None",
+                "description": "optionally associate a vector to the log item",
+            },
+            {
+                "name": "info",
+                "default": "None",
+                "description": "optionally include description text for the log item",
+            },
+            {
+                "name": "emit_only",
+                "default": "False",
+                "description": "when true, no log item is created, but the logbook is still refreshed in the web client",
+            },
+        ]
 
         # give vectorcloud access to the description
         self.plugin_description = (
