@@ -84,6 +84,13 @@ blockquote {
 
 code { white-space: pre-wrap; }
 
+table tr {
+    border-bottom-color: var(--theme-surface-2);
+}
+table tr:last-child {
+    border-bottom: 0 !important;
+}
+
 /* SCROLLBARS */
 /* width */
 ::-webkit-scrollbar {

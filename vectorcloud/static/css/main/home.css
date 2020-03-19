@@ -1,25 +1,3 @@
-.timeline .feed-rows-ul::before {
-    margin: 0 !important;
-    left: 7px  !important;
-}
-.timeline .feed-rows-ul .collection-item::before {
-    margin: 0  !important;
-    left: 0  !important;
-}
-.timeline .feed-rows-ul .successful_cmd .collection-item::before {
-    color: var(--theme-success)  !important;
-}
-.timeline .feed-rows-ul .failed_cmd .collection-item::before {
-    color: var(--theme-warning)  !important;
-}
-
-.timeline .collection .collection-item {
-    background: var(--theme-surface);
-}
-#feed-body {
-    max-height: calc(100vh - 390px);
-    min-height: calc(100vh - 390px);
-}
 .vector-card {
     max-height: calc(100vh - 30px);
     min-height: calc(100vh - 30px);

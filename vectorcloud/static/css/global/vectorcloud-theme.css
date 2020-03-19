@@ -72,6 +72,12 @@
 .theme-warning-text {
   color: var(--theme-warning) !important;
 }
+.theme-success {
+  background-color: var(--theme-success) !important;
+}
+.theme-success-text {
+  color: var(--theme-success) !important;
+}
 .theme-muted-text {
   color: var(--theme-color-font-muted) !important;
 }

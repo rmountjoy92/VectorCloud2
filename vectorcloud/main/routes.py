@@ -9,17 +9,17 @@ from flask import (
     request,
     Blueprint,
     jsonify,
-    Response,
 )
 from flask_login import current_user
-from vectorcloud.main.models import Files, Vectors, Logbook
-from vectorcloud.main.utils import stream_video, public_route
-from vectorcloud.plugins.utils import (
+from vectorcloud.main.models import Files, Vectors, Repositories
+from vectorcloud.main.utils import (
     run_plugin,
-    get_plugin_description,
-    get_plugin_options,
+    get_repositories,
+    get_plugins,
+    uninstall_plugin,
+    install_plugin,
 )
-from vectorcloud.paths import cache_folder, plugins_folder
+from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
 
 
@@ -67,35 +67,47 @@ def check_valid_login():
 def home():
     vectors = Vectors.query.all()
 
-    plugins = []
-    plugin_files = os.listdir(plugins_folder)
-    plugin_files = sorted(plugin_files)
-    for plugin_file in plugin_files:
-        name, extension = os.path.splitext(plugin_file)
-        print(name)
-        if extension.lower() == ".py" and name not in ["utils", "__init__"]:
-            plugins.append(
-                {
-                    "name": name,
-                    "description": get_plugin_description(name),
-                    "options": get_plugin_options(name),
-                }
-            )
+    repositories = get_repositories()
 
-    return render_template("main/home.html", vectors=vectors, plugins=plugins)
+    plugins, plugin_icons, plugin_panels, plugins_js = get_plugins()
 
-
-@main.route("/run", methods=["GET"])
-def run():
-    return run_plugin("say", {"vector_id": 1})
-
-
-@public_route
-@main.route("/video_feed?<vector_id>")
-def video_feed(vector_id):
-    return Response(
-        stream_video(vector_id), mimetype="multipart/x-mixed-replace; boundary=frame"
+    return render_template(
+        "main/home.html",
+        vectors=vectors,
+        plugins=plugins,
+        plugin_icons=plugin_icons,
+        plugin_panels=plugin_panels,
+        plugins_js=plugins_js,
+        repositories=repositories,
     )
+
+
+@main.route("/run", methods=["POST"])
+def run():
+    options = {}
+    for fieldname, value in request.form.items():
+        if fieldname != "plugin_name" and len(value) >= 1:
+            options[fieldname] = value
+    return run_plugin(request.form.get("plugin_name"), options)
+
+
+@main.route("/delete_plugin", methods=["GET"])
+def delete_plugin():
+    output = uninstall_plugin(request.args.get("plugin_name"))
+    if output == "success":
+        return "success"
+    else:
+        return output
+
+
+@main.route("/install_plugin_from_repo", methods=["GET"])
+def install_plugin_from_repo():
+    repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
+    output = install_plugin(request.args.get("plugin_name"), repository)
+    if output == "success":
+        return "success"
+    else:
+        return output
 
 
 # ------------------------------------------------------------------------------

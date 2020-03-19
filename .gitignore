@@ -117,3 +117,8 @@ scheduler.db
 scheduler.db
 
 .idea/
+
+vectorcloud/plugins
+vectorcloud/repositories
+vectorcloud/static/js/plugins
+vectorcloud/templates/plugins

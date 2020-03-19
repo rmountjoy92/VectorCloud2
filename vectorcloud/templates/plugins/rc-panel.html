@@ -1,0 +1,25 @@
+{% from 'global_macros.html' import preload_circle %}
+
+<div class="plugin-panel rc-panel hide">
+    <div class="divider"></div>
+    <div class="row">
+        <div class="col s12">
+            <div class="row mt-2 center-align">
+                <img class="rc-video-feed"
+                     style="margin-left: -5px;"
+                     src=""
+                     width="100%"
+                     data-url="{{ url_for("get_video_feed_url") }}">
+                <div class="rc-video-feed-loading">
+                    {{ preload_circle() }}
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row center-align">
+                <i class="rc-video-feed-close material-icons-outlined theme-secondary-text icon-btn">close</i>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,36 +1,23 @@
 var socket = io();
-socket.on('connect', function() {
-    socket.emit('request_stats', {vector_id: "all"});
-    socket.emit('request_logbook');
-});
-socket.on('stats', function(stats) {
-    console.log(stats)
-    $("#status-connected-" + stats.name).attr("src", 'static/images/icons/vector-green.svg')
-    $("#status-ip-" + stats.name).text("IP: " + stats.ip);
-    $("#status-name-" + stats.name).text(stats.name);
-    $("#status-version-" + stats.name).text("OS Version: " +  stats.version);
-    $("#status-serial-" + stats.name).text("Serial: " +  stats.serial);
-    $("#status-battery_voltage-" + stats.name).text("Battery Voltage: " +  stats.battery_voltage);
-    $("#status-battery_level-" + stats.name).text("Battery Level: " +  stats.battery_level);
-    $("#status-status_charging-" + stats.name).text("Charging Status: " +  stats.status_charging);
-    $("#status-cube_id-" + stats.name).text("Cube ID: " +  stats.cube_id);
-    $("#status-cube_battery_volts-" + stats.name).text("Cube Battery Volts: " +  stats.cube_battery_volts);
-    $("#status-cube_battery_level-" + stats.name).text("Cube Battery Level: " +  stats.cube_battery_level);
-    if (stats.cube_id && stats.cube_id.length > 0){
-        $("#status-cube-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
+
+socket.on('vector_busy', function(vector_id) {
+    if (vector_id.length > 0) {
+        $(".vector-busy").each(function(e) {
+            if ($(this).attr('vector_id') == vector_id){
+                $(this).removeClass('hide');
+            }
+        });
+    } else {
+        $(".vector-busy").removeClass('hide');
     }
-    if (stats.status_charging == true){
-        $("#status-battery-" + stats.name).text('battery_charging_full');
-        $("#status-battery-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
-        $("#status-docked-" + stats.name).removeClass('theme-secondary-text').addClass('theme-primary-text');
-    } else if (stats.battery_level < 2){
-        $("#status-battery-" + stats.name).text('battery_alert');
-        $("#status-battery-" + stats.name).addClass('theme-secondary-text').removeClass('theme-primary-text');
-        $("#status-docked-" + stats.name).addClass('theme-secondary-text').removeClass('theme-primary-text');
-    } else if (stats.battery_level >= 2){
-        $("#status-battery-" + stats.name).text('battery_full');
-        $("#status-battery-" + stats.name).addClass('theme-secondary-text').removeClass('theme-primary-text');
-        $("#status-docked-" + stats.name).addClass('theme-secondary-text').removeClass('theme-primary-text');
+});
+socket.on('vector_free', function(vector_id) {
+    if (vector_id.length > 0) {
+        if ($(this).attr('vector_id') == vector_id){
+            $(this).addClass('hide');
+        }
+    } else {
+        $(".vector-busy").addClass('hide');
     }
 
 });
@@ -45,91 +32,13 @@ socket.on('server_message', function(message) {
     M.toast({html: message.html, classes: message.classes})
 });
 
-socket.on('logbook', function(message) {
-    $.each(message, function(key, value) {
-        $("#feed-rows-ul-" + key).empty();
-        $("#feed-rows-ul-" + key).append(value);
-    });
-});
+
 
 $( document ).ready(function() {
+
     $('#settings-sidenav').sidenav({
         edge: 'right',
         draggable: false,
-    });
-
-    $("#logbook-info-modal").modal();
-    $("#add-edit-script-modal").modal();
-
-    $(".command-bar").on('keyup', function(e) {
-        if (e.key == "Enter"){
-            socket.emit('request_robot_do', {
-                command: $(this).val(),
-                refresh_stats: true,
-                vector_id: $(this).attr("data-id")
-            });
-            $(this).val('');
-        }
-    });
-
-    $(".status-docked").on('click', function(e) {
-        if ($(this).hasClass('theme-primary-text')){
-            socket.emit('run_plugin', {
-                name: "undock",
-                vector_id: $(this).attr("data-id")
-            });
-        } else {
-            socket.emit('run_plugin', {
-                name: "dock",
-                vector_id: $(this).attr("data-id")
-            });
-        }
-
-    });
-
-    $(".ping-vector").on('click', function(e) {
-        socket.emit('run_plugin', {
-            name: "say",
-            text_to_say: 'ping',
-            vector_id: $(this).attr("data-id")
-        });
-    });
-
-    $(".refresh-vector").on('click', function(e) {
-        socket.emit('request_stats', {vector_id: $(this).attr("data-id")});
-    });
-
-    function hide_info_tabs(el, id){
-        if (el.hasClass('hide')){
-            $(".status-tabs-" + id).each(function(e) {
-                $(this).addClass('hide');
-            });
-            el.removeClass('hide');
-        } else {
-            el.addClass('hide');
-        }
-    }
-
-    $(".status-cube").on('click', function(e) {
-        var id = $(this).attr("data-id");
-        hide_info_tabs($("#status-cube-row-" + id), id);
-
-        if ($(this).hasClass('theme-secondary-text')) {
-            socket.emit('request_robot_do', {
-                command: "robot.world.connect_cube()",
-                vector_id: id
-            });
-        }
-    });
-
-    $(".status-info").on('click', function(e) {
-        var id = $(this).attr("data-id")
-        hide_info_tabs($("#status-info-row-" + id), id);
-    });
-
-    $(".status-battery").on('click', function(e) {
-        var id = $(this).attr("data-id")
-        hide_info_tabs($("#status-battery-row-" + id), id);
     });
 
     $(".status-remote").on('click', function(e) {
@@ -153,13 +62,55 @@ $( document ).ready(function() {
         socket.emit('logbook_log', {name: name + " closed the stream.", log_type: 'success'});
     });
 
-    var plugins = {}
+    var plugins = {};
     $(".plugin-name").each(function(e) {
         plugins[$(this).text()] = null
     });
+    $('.command-bar').each(function() {
+        var el = $(this);
+        var id = el.attr('data-id');
+        el.autocomplete({
+            data: plugins,
+            onAutocomplete: function (e) {
+                var plugin_name = e;
+                $("#run-plugin-row-" + id).removeClass('hide');
+                $("#run-plugin-title-" + id).text(plugin_name);
+                $("#run-plugin-form-" + id).empty();
+                $(".plugin-option-name").each(function(i, e) {
+                    if ($(this).attr('data-plugin') == plugin_name){
+                        $("#run-plugin-form-" + id).append(
+                            `<div class="input-field col s12"><input id="${$(this).text()}-${1}" name="${$(this).text()}" type="text"><label for="${$(this).text()}-${1}">${$(this).text()}</label></div>`
+                        )
+                        if ($(this).text() == "vector_id"){
+                            $("#run-plugin-form-" + id).find('input[name="vector_id"]').val(id)
+                        }
+                    }
+                });
+                $("#run-plugin-form-" + id).append(
+                    `<input class="hide" value="${plugin_name}" name="plugin_name">`
+                );
+                M.updateTextFields();
+            }
+        });
+    });
 
-    $('.command-bar').autocomplete({
-        data: plugins,
+    $(".run-plugin-btn").on('click', function(e) {
+        var url = $(this).attr('data-url')
+        var id = $(this).attr('data-id')
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: $("#run-plugin-form-" + id).serialize(),
+            success: function(data){
+
+            }
+        });
+    });
+
+    $(".cancel-run-plugin-btn").on('click', function(e) {
+        var id = $(this).attr('data-id');
+        $("#run-plugin-row-" + id).addClass('hide');
+        $("#run-plugin-form-" + id).empty();
     });
 
     $("#open-settings-sidenav-btn").on('click', function(e) {
@@ -172,12 +123,79 @@ $( document ).ready(function() {
         $(this).addClass('hide');
     });
 
+    $(".show-repository-plugins-btn").on('click', function(e) {
+        var plugins_list = $(this).closest('.repository-collection-item').find('.repository-plugins-list');
+        if (plugins_list.hasClass('hide')){
+            plugins_list.removeClass('hide');
+        } else {
+            plugins_list.addClass('hide');
+        }
+    });
+
+    $(".show-plugin-info-btn").on('click', function(e) {
+        var plugin_info = $(this).closest('.card').find('.plugin-info-row');
+        if (plugin_info.hasClass('hide')){
+            plugin_info.removeClass('hide');
+            $(this).addClass('theme-primary-text');
+        } else {
+            plugin_info.addClass('hide');
+            $(this).removeClass('theme-primary-text');
+        }
+    });
+
+    $(".delete-plugin-btn").on('click', function(e) {
+        var r = confirm("Are you sure you want to delete this plugin?");
+        if (r == true) {
+            $.ajax({
+                url: $(this).attr('data-url'),
+                type: 'GET',
+                data: {plugin_name: $(this).attr('data-plugin')},
+                success: function(data){
+                    if (data == "success"){
+                        var toastHTML = '<span>Plugin uninstalled.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+                        M.toast({html: toastHTML});
+                    } else {
+                        M.toast({html: data, classes: 'theme-warning'});
+                    }
+                }
+            });
+        }
+    });
+
+    $(".install-plugin-btn").on('click', function(e) {
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            data: {plugin_name: $(this).attr('data-plugin')},
+            success: function(data){
+                if (data == "success"){
+                    var toastHTML = '<span>Plugin installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+                    M.toast({html: toastHTML});
+                } else {
+                    M.toast({html: data, classes: 'theme-warning'});
+                }
+            }
+        });
+    });
+
 });
 
-function init_logbook() {
-    $(".show-logbook-info").on('click', function(e) {
-        $("#logbook-info-code").text($(this).attr('data-info'));
-        $("#logbook-info-title").text($(this).attr('data-name'));
-        $("#logbook-info-modal").modal('open');
+function show_panel(panel, vector_id, btn=null) {
+    console.log(vector_id)
+    $(".plugin-panels-container").each(function(e) {
+        if ($(this).attr('vector_id') == vector_id) {
+            $(this).find(".plugin-panel").addClass('hide');
+            $(this).find(panel).removeClass('hide');
+        }
     });
+    $(".plugin-icons-container").each(function(e) {
+        if ($(this).attr('vector_id') == vector_id) {
+            $(this).find('.plugin-btn:not(.color-ignore)').removeClass('theme-primary-text');
+            $(this).find('.plugin-btn:not(.color-ignore)').addClass('theme-secondary-text');
+        }
+    });
+    if (btn != null) {
+        btn.removeClass('theme-secondary-text');
+        btn.addClass('theme-primary-text');
+    }
 }

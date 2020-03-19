@@ -178,3 +178,8 @@ label=''
         <label>{{ label }}</label>
     </div>
 {% endmacro %}
+
+<div class="input-field col s12">
+    <input id="${$(this).text()}-${1}" name="${$(this).text()}" type="text">
+    <label for="${$(this).text()}-${1}">${$(this).text()}</label>
+</div>

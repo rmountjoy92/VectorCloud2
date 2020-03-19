@@ -19,6 +19,12 @@ static_folder = os.path.join(vc_folder, "static")
 
 plugins_folder = os.path.join(vc_folder, "plugins")
 
+plugins_panels_folder = os.path.join(templates_folder, "plugins")
+
+plugins_js_folder = os.path.join(static_folder, "js", "plugins")
+
+repositories_folder = os.path.join(vc_folder, "repositories")
+
 images_folder = os.path.join(static_folder, "images")
 
 cache_folder = os.path.join(static_folder, "cache")

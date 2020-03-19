@@ -1,5 +1,4 @@
-{% from 'global_macros.html' import preload_circle %}
-{% from 'main/logbook.html' import LogBook with context %}
+{% from 'global_macros.html' import preload_circle, input, button %}
 {% macro VectorCards() %}
     {% for vector in vectors %}
         <div class="col s12 m6 l4 xl3">
@@ -10,103 +9,87 @@
                         <h5 id="status-name-{{ vector.name }}">Waiting for Vector</h5>
                     </div>
 
+                    <div class="row" style="min-height: 28px; position: relative;">
+                        <div class="progress vector-busy hide" vector_id="{{ vector.id }}" style="position: absolute; bottom: 0">
+                            <div class="indeterminate"></div>
+                        </div>
+                    </div>
+
                     <div class="row card-filter-container">
-                        <div class="col s12 input-field">
+                        <div class="col s12 input-field mt-0">
                         <span>
                             <i class="material-icons prefix card-search-icon">chevron_right</i>
-                            <input type="text" id="command-bar-{{ vector.name }}" class="card-filter command-bar" placeholder="Enter a command" data-id="{{ vector.id }}">
+                            <input type="text" id="command-bar-{{ vector.name }}" class="card-filter command-bar" placeholder="Run a plugin" data-id="{{ vector.id }}">
                         </span>
                         </div>
                     </div>
 
-                    <div class="row center-align">
-                        <i id="status-logbook-{{ vector.name }}" class="status-logbook material-icons-outlined theme-secondary-text icon-btn">timeline</i>
-                        <i id="status-battery-{{ vector.name }}" class="status-battery material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">battery_unknown</i>
-                        <i id="status-cube-{{ vector.name }}" class="status-cube material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">pages</i>
-                        <i id="status-docked-{{ vector.name }}" class="status-docked material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">home</i>
-                        <i class="status-info material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">info</i>
-                        <i id="" class="status-remote material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">games</i>
-                        <i class="refresh-vector material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">refresh</i>
-                        <i class="ping-vector material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}">contactless</i>
-                        <i id="" class="material-icons-outlined theme-secondary-text icon-btn" >settings</i>
-                    </div>
-
-                    <div id="status-logbook-row-{{ vector.id }}" class="status-tabs-{{ vector.id }}">
-                        <div class="divider"></div>
-                        <div class="row">
-                            <div class="col s12 pr-0">
-                                <h5>Logbook</h5>
-                                <div class="status-logbook-container-{{ vector.id }}">
-                                    {{LogBook(vector.id)}}
-                                </div>
+                    <div id="run-plugin-row-{{ vector.id }}" class="row hide">
+                        <div class="col s12">
+                            <h6 id="run-plugin-title-{{ vector.id }}" class="center-align font-weight-600"></h6>
+                            <form id="run-plugin-form-{{ vector.id }}">
+                            </form>
+                            <div class="center-align mb-4">
+                                {{ button(
+                                icon="close",
+                                float="center",
+                                class="cancel-run-plugin-btn",
+                                data={"id": vector.id},
+                                text="cancel"
+                                ) }}
+                                {{ button(
+                                data={"url": url_for('main.run'), "id": vector.id},
+                                class="run-plugin-btn",
+                                icon="send",
+                                float="center",
+                                text="run"
+                                ) }}
                             </div>
                         </div>
                     </div>
 
-                    <div id="status-info-row-{{ vector.id }}" class="status-tabs-{{ vector.id }} hide">
-                        <div class="divider"></div>
-                        <div class="row">
-                            <div class="col s12">
-                                <h5>Info</h5>
-                                <div class="selectable">
-                                    <p id="status-ip-{{ vector.name }}">IP: Waiting for Vector</p>
-                                    <p id="status-version-{{ vector.name }}">OS Version: Waiting for Vector</p>
-                                    <p id="status-serial-{{ vector.name }}">Serial: Waiting for Vector</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="row center-align plugin-icons-container" vector_id="{{ vector.id }}">
+{#                        <i id="" class="material-icons-outlined theme-secondary-text icon-btn" >settings</i>#}
+                        {% for icon_set in plugin_icons %}
+                            {% if icon_set %}
+                                {% for icon in icon_set %}
+                                    {% if icon %}
+                                        <text class="theme-secondary-text">
+                                            <i class="material-icons-outlined icon-btn plugin-btn {{ icon['class'] }} tooltipped"
+                                                data-position="top" data-tooltip="{{ icon['tooltip'] }}">{{ icon['mdi_class'] }}</i>
+                                        </text>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
                     </div>
 
-                    <div id="status-battery-row-{{ vector.id }}" class="status-tabs-{{ vector.id }} hide">
-                        <div class="divider"></div>
-                        <div class="row">
-                            <div class="col s12">
-                                <h5>Battery</h5>
-                                <div class="selectable">
-                                    <p id="status-battery_voltage-{{ vector.name }}">Battery Voltage: Waiting for Vector</p>
-                                    <p id="status-battery_level-{{ vector.name }}">Battery Level: Waiting for Vector</p>
-                                    <p id="status-status_charging-{{ vector.name }}">Charging Status: Waiting for Vector</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="plugin-panels-container" vector_id="{{ vector.id }}">
+                        {{ plugin_panels|safe }}
                     </div>
-
-                    <div id="status-cube-row-{{ vector.id }}" class="status-tabs-{{ vector.id }} hide">
-                        <div class="divider"></div>
-                        <div class="row">
-                            <div class="col s12">
-                                <h5>Cube</h5>
-                                <div class="selectable">
-                                    <p id="status-cube_id-{{ vector.name }}">Cube ID: Cube not connected</p>
-                                    <p id="status-cube_battery_volts-{{ vector.name }}">Battery Volts: Cube not connected</p>
-                                    <p id="status-cube_battery_level-{{ vector.name }}">Battery Level: Cube not connected</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="status-video-feed-row-{{ vector.id }}" class="status-tabs-{{ vector.id }} hide">
-                        <div class="divider"></div>
-                        <div class="row mt-2 center-align">
-                            <img id="status-video-feed-{{ vector.id }}"
-                                 style="margin-left: -5px;"
-                                 src="static/images/ajax-loader.gif"
-                                 class="status-video-feed"
-                                 width="100%"
-                                 data-id="{{ vector.id }}"
-                                 data-url="{{ url_for("main.video_feed", vector_id=vector.id) }}">
-                            <div id="video-feed-preload-circle-{{ vector.id }}" class="hide">
-                                {{ preload_circle() }}
-                            </div>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <div class="row center-align">
-                            <i class="status-close-video-feed material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}" data-name="{{ vector.name }}">close</i>
-                        </div>
-                    </div>
-                    
+{##}
+{#                    <div id="status-video-feed-row-{{ vector.id }}" class="status-tabs-{{ vector.id }} hide">#}
+{#                        <div class="divider"></div>#}
+{#                        <div class="row mt-2 center-align">#}
+{#                            <img id="status-video-feed-{{ vector.id }}"#}
+{#                                 style="margin-left: -5px;"#}
+{#                                 src="static/images/ajax-loader.gif"#}
+{#                                 class="status-video-feed"#}
+{#                                 width="100%"#}
+{#                                 data-id="{{ vector.id }}"#}
+{#                                 data-url="{{ url_for("main.video_feed", vector_id=vector.id) }}">#}
+{#                            <div id="video-feed-preload-circle-{{ vector.id }}" class="hide">#}
+{#                                {{ preload_circle() }}#}
+{#                            </div>#}
+{#                        </div>#}
+{##}
+{#                        <div class="divider"></div>#}
+{##}
+{#                        <div class="row center-align">#}
+{#                            <i class="status-close-video-feed material-icons-outlined theme-secondary-text icon-btn" data-id="{{ vector.id }}" data-name="{{ vector.name }}">close</i>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    #}
 
 
                 </div>

@@ -52,7 +52,8 @@ app.register_blueprint(error_pages)
 from vectorcloud.rest_api.resources import *
 
 api.add_resource(Version, "/api/version")
-api.add_resource(VideoFeed, "/api/video_feed")
 api.add_resource(RunPlugin, "/api/run")
 
-from vectorcloud.main.sockets import *
+from vectorcloud.main.utils import start_plugins, handle_run_plugin
+
+start_plugins()

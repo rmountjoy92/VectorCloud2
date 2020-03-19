@@ -1,8 +1,7 @@
-from flask import request, Response
+from flask import request
 from flask_restful import Resource
 from vectorcloud.version import vectorcloud_version
-from vectorcloud.main.utils import stream_video
-from vectorcloud.plugins.utils import run_plugin
+from vectorcloud.main.utils import run_plugin
 
 
 """
@@ -45,21 +44,3 @@ class RunPlugin(Resource):
         else:
             return {"response": "Unauthorized"}
         return "ok"
-
-
-class VideoFeed(Resource):
-    """
-    This resources calls the function: :func:`.robot_do`
-
-    :url: /api/video_feed
-    """
-
-    def get(self):
-        api_key = "123456789"
-        if request.args["api_key"] == api_key:
-            return Response(
-                stream_video(request.args["vector_id"]),
-                mimetype="multipart/x-mixed-replace; boundary=frame",
-            )
-        else:
-            return {"response": "Unauthorized"}

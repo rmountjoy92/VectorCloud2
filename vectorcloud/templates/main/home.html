@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 {% from 'main/vector-cards.html' import VectorCards with context %}
-{% from 'main/logbook.html' import LogBook with context %}
 
 {% block page_vendor_css %}
 {% endblock page_vendor_css %}
 
 {% block page_lvl_css %}
-{{ process_css_sources(src="main/home.css")|safe }}
+    {{ process_css_sources(src="main/home.css")|safe }}
 {% endblock page_lvl_css %}
 
 {% block content %}
@@ -18,6 +17,13 @@
                         <span class="center-align">
                             <i class="material-icons-outlined">extension</i>
                             <span class="font-weight-900 left">Plugins</span>
+                        </span>
+                    </a></li>
+
+                    <li class="tab col s3"><a href="#repositories-tab" class="active">
+                        <span class="center-align">
+                            <i class="material-icons-outlined">storefront</i>
+                            <span class="font-weight-900 left">Repositories</span>
                         </span>
                     </a></li>
 
@@ -49,31 +55,155 @@
                 {% for plugin in plugins %}
                     <div class="card theme-surface-1">
                         <div class="card-content">
-                            <h5 class="plugin-name">{{ plugin['name'] }}</h5>
+                            <h4 class="plugin-name">{{ plugin['name'] }}</h4>
                             <span>{{ plugin['description'] }}</span>
-                            <div class="divider"></div>
-                            <h6>Options</h6>
-                            <table class="responsive-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Default</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for option in plugin['options'] %}
+
+                            <div class="row right-align pr-2">
+                                <span class="theme-secondary-text">
+                                    <i class="material-icons-outlined icon-btn tooltipped show-plugin-info-btn"
+                                       data-position="top" data-tooltip="Plugin info">info</i>
+                                    <i class="material-icons-outlined icon-btn tooltipped"
+                                       data-position="top" data-tooltip="Reinstall plugin">refresh</i>
+                                    <i class="material-icons-outlined icon-btn tooltipped"
+                                       data-position="top" data-tooltip="Plugin settings">settings</i>
+                                    <i class="material-icons-outlined icon-btn tooltipped delete-plugin-btn"
+                                       data-position="top" data-tooltip="Delete plugin"
+                                       data-plugin="{{ plugin['name'] }}" data-url="{{ url_for('main.delete_plugin') }}">delete</i>
+                                </span>
+                            </div>
+
+                            <div class="row plugin-info-row hide">
+                                {% if plugin['js'] or plugin['icons'] or plugin['panels'] %}
+                                    <div class="divider"></div>
+                                    <h5>Provides interface</h5>
+                                    {% if plugin['icons'] %}
+                                        <h6>Icons</h6>
+                                        {% for icon in plugin['icons'] %}
+                                            {% if icon %}
+                                                <text class="theme-secondary-text mb-4">
+                                                    <i class="material-icons-outlined icon-btn tooltipped"
+                                                       data-position="top" data-tooltip="{{ icon['tooltip'] }}">{{ icon['mdi_class'] }}</i>
+                                                </text>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if plugin['panels'] %}
+                                        <h6>Panels</h6>
+                                        {% for panel in plugin['panels'] %}
+                                            {% if panel %}
+                                                <ul class="collection mb-4">
+                                                    <li class="collection-item">.{{ panel['class'] }} <span class="theme-secondary-text">plugins/{{ panel['template'] }}</span></li>
+                                                </ul>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if plugin['js'] %}
+                                        <h6>Javascript</h6>
+                                        {% for js in plugin['js'] %}
+                                            {% if js %}
+                                                <ul class="collection mb-4">
+                                                    <li class="collection-item">static/js/plugins/{{ js }}</li>
+                                                </ul>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if plugin['options'] %}
+                                    <div class="divider"></div>
+                                    <h5>Run Options</h5>
+                                    <table class="responsive-table mb-4">
+                                        <thead>
                                         <tr>
-                                            <td class="selectable-all">{{ option['name'] }}</td>
-                                            <td>{{ option['default'] }}</td>
-                                            <td>{{ option['description'] }}</td>
+                                            <th>Name</th>
+                                            <th>Default</th>
+                                            <th>Description</th>
                                         </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for option in plugin['options'] %}
+                                            <tr>
+                                                <td class="selectable-all plugin-option-name" data-plugin="{{ plugin['name'] }}">{{ option['name'] }}</td>
+                                                <td>{{ option['default'] }}</td>
+                                                <td>{{ option['description'] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+
+                                {% if plugin['dependencies'] %}
+                                    <div class="divider"></div>
+                                    <h5>Plugin Dependencies</h5>
+                                    {% for dependency in plugin['dependencies'] %}
+                                        {% if dependency %}
+                                            <ul class="collection">
+                                                <li class="collection-item">{{ dependency }}</span></li>
+                                            </ul>
+                                        {% endif %}
                                     {% endfor %}
-                                </tbody>
-                            </table>
+                                {% endif %}
+                            </div>
+
                         </div>
                     </div>
                 {% endfor %}
+            </div>
+            <div id="repositories-tab" class="col s12">
+                <div class="row">
+                    <div class="col s12">
+                        <h4>Repositories</h4>
+                        <div class="collection">
+                            {% for repository in repositories %}
+                                <div class="collection-item repository-collection-item" data-id="{{ repository.id }}">
+                                    <h5>{{ repository.name }}</h5>
+                                    <h6 class="theme-secondary-text">{{ repository.url }}</h6>
+                                    <div class="row right-align pr-2">
+                                        <span class="theme-secondary-text">
+                                            <i class="material-icons-outlined icon-btn show-repository-plugins-btn tooltipped"
+                                               data-position="top" data-tooltip="Show available plugins">extension</i>
+
+                                            <a href="{{ repository.url }}" target="_blank">
+                                                <i class="material-icons-outlined icon-btn theme-secondary-text tooltipped"
+                                                   data-position="top" data-tooltip="Go to source">open_in_new</i>
+                                            </a>
+                                            <i class="material-icons-outlined icon-btn tooltipped"
+                                               data-position="top" data-tooltip="Update repository">cloud_download</i>
+                                            <i class="material-icons-outlined icon-btn tooltipped"
+                                               data-position="top" data-tooltip="Repository settings">settings</i>
+                                            <i class="material-icons-outlined icon-btn tooltipped"
+                                               data-position="top" data-tooltip="Delete repository">delete</i>
+                                        </span>
+                                    </div>
+                                    <div class="row hide repository-plugins-list">
+                                        {% for plugin in repository.plugins %}
+                                            <div class="card">
+                                                <div class="card-content">
+                                                    <h5>{{ plugin['name'] }}</h5>
+                                                    <h6 class="theme-secondary-text">{{ plugin['description'] }}</h6>
+                                                    <div class="row right-align pr-2">
+                                                    <span class="theme-secondary-text">
+                                                        {% if plugin['installed'] == False %}
+                                                            <i class="material-icons-outlined theme-primary-text icon-btn tooltipped install-plugin-btn"
+                                                               data-position="top" data-tooltip="Install plugin"
+                                                                data-plugin="{{ plugin['name'] }}" data-url="{{ url_for('main.install_plugin_from_repo') }}">get_app</i>
+                                                        {% else %}
+                                                            <i class="material-icons-outlined icon-btn tooltipped"
+                                                               data-position="top" data-tooltip="Plugin with name {{ plugin['name'] }} already installed">get_app</i>
+                                                        {% endif %}
+                                                    </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        {% endfor %}
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="users-tab" class="col s12">Users</div>
             <div id="settings-tab" class="col s12">settings</div>
@@ -106,5 +236,15 @@
 {% endblock page_vendor_js %}
 
 {% block page_lvl_js %}
-{{ process_js_sources(src="main/home.js")|safe }}
+    {{ process_js_sources(src="main/home.js")|safe }}
+    {% for js_set in plugins_js %}
+        {% if js_set %}
+            {% for js_src in js_set %}
+                {% if js_src%}
+                    {{ process_js_sources(src="plugins/" + js_src)|safe }}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
 {% endblock page_lvl_js %}

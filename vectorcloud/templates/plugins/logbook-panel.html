@@ -1,0 +1,66 @@
+<style>
+    .timeline .feed-rows-ul::before {
+        margin: 0 !important;
+        left: 7px  !important;
+    }
+    .timeline .feed-rows-ul .collection-item::before {
+        margin: 0  !important;
+        left: 0  !important;
+    }
+    .timeline .feed-rows-ul .successful_cmd .collection-item::before {
+        color: var(--theme-success)  !important;
+    }
+    .timeline .feed-rows-ul .failed_cmd .collection-item::before {
+        color: var(--theme-warning)  !important;
+    }
+
+    .timeline .collection .collection-item {
+        background: var(--theme-surface);
+    }
+    .feed-body {
+        max-height: calc(100vh - 390px);
+        min-height: calc(100vh - 390px);
+    }
+</style>
+
+<div class="plugin-panel logbook-panel hide">
+    <div class="modal logbook-info-modal">
+        <div class="modal-content">
+            <h6 class="center logbook-info-title"></h6>
+            <div class="theme-surface-1 selectable mt-2 padding-1 border-radius-10">
+                <code class="logbook-info-code"></code>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row mt-2">
+        <div class="col s12">
+            <h5>Logbook</h5>
+        </div>
+
+        <div class="timeline col s12">
+            <div class="activity">
+
+                <div class="row hide feed-filters-row">
+                    <div class="divider"></div>
+                    <div class="row">
+                        <div class="col s12">
+                            <label>Type</label>
+                            <select class="feed-type-select">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                </div>
+
+                <div class="row scrollbar feed-body">
+                    <ul class="collection with-header feed-rows-ul">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
