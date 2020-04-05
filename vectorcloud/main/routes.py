@@ -18,6 +18,10 @@ from vectorcloud.main.utils import (
     get_plugins,
     uninstall_plugin,
     install_plugin,
+    add_repository,
+    delete_repository,
+    update_repositories,
+    reinstall_plugin,
 )
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
@@ -67,8 +71,6 @@ def check_valid_login():
 def home():
     vectors = Vectors.query.all()
 
-    repositories = get_repositories()
-
     plugins, plugin_icons, plugin_panels, plugins_js = get_plugins()
 
     return render_template(
@@ -78,8 +80,13 @@ def home():
         plugin_icons=plugin_icons,
         plugin_panels=plugin_panels,
         plugins_js=plugins_js,
-        repositories=repositories,
     )
+
+
+@main.route("/load_repositories", methods=["GET"])
+def load_repositories():
+    repositories = get_repositories()
+    return render_template("main/repositories.html", repositories=repositories)
 
 
 @main.route("/run", methods=["POST"])
@@ -100,6 +107,44 @@ def delete_plugin():
         return output
 
 
+@main.route("/add_repo_from_link", methods=["GET"])
+def add_repo_from_link():
+    add_repository(request.args.get("url"))
+    return "ok"
+
+
+@main.route("/delete_repository_by_id", methods=["GET"])
+def delete_repository_by_id():
+    repo = Repositories.query.filter_by(id=request.args.get("id")).first()
+    delete_repository(repo)
+    return "ok"
+
+
+@main.route("/update_repository_by_id", methods=["GET"])
+def update_repository_by_id():
+    repo = Repositories.query.filter_by(id=request.args.get("id")).first()
+    update_repositories(repo)
+    return "ok"
+
+
+@main.route("/update_all_repositories", methods=["GET"])
+def update_all_repositories():
+    update_repositories()
+    return "ok"
+
+
+@main.route("/toggle_repository_auto_update", methods=["GET"])
+def toggle_repository_auto_update():
+    repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
+    if request.args.get("toggle") == "off":
+        repository.auto_update = None
+    elif request.args.get("toggle") == "on":
+        repository.auto_update = True
+    db.session.merge(repository)
+    db.session.commit()
+    return "ok"
+
+
 @main.route("/install_plugin_from_repo", methods=["GET"])
 def install_plugin_from_repo():
     repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
@@ -108,6 +153,22 @@ def install_plugin_from_repo():
         return "success"
     else:
         return output
+
+
+@main.route("/install_all_plugins_from_repo", methods=["GET"])
+def install_all_plugins_from_repo():
+    repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
+    repositories = get_repositories(repository)
+    for plugin in repositories[0].plugins:
+        reinstall_plugin(plugin["name"], repository)
+    return "ok"
+
+
+@main.route("/reinstall_plugin_by_name", methods=["GET"])
+def reinstall_plugin_by_name():
+    repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
+    reinstall_plugin(request.args.get("plugin_name"), repository)
+    return "ok"
 
 
 # ------------------------------------------------------------------------------

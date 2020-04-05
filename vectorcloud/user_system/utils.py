@@ -2,11 +2,12 @@ from vectorcloud import db, bcrypt
 from vectorcloud.user_system.models import User
 
 
-def add_user(email, password, fname, lname):
+def add_user_func(username, password):
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-    user = User(email=email, fname=fname, lname=lname, password=hashed_password)
+    user = User(username=username, password=hashed_password)
     db.session.add(user)
     db.session.commit()
+    return user
 
 
 def change_password(user_id, new_password):

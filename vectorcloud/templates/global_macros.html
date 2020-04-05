@@ -90,7 +90,8 @@ icon=None,
 spacer_icon=False,
 required='',
 helper=None,
-textarea=False
+textarea=False,
+placeholder=""
 )%}
     <div id="{{col_id}}" class="input-field col {{ size }} {{ col_class }}">
         {% if spacer_icon == True %}
@@ -102,14 +103,14 @@ textarea=False
 
         {% if form_obj %}
             {% if required == "required" %}
-                {{ form_obj(id=id, value=val, class="validate " + class, required=required) }}
+                {{ form_obj(id=id, value=val, class="validate " + class, required=required, placeholder=placeholder) }}
             {% else %}
-                {{ form_obj(id=id, value=val, class="validate " + class) }}
+                {{ form_obj(id=id, value=val, class="validate " + class, placeholder=placeholder) }}
             {% endif %}
         {% elif textarea == True %}
-            <textarea id="{{id}}" class="materialize-textarea validate {{ class }}" ((required}}>{{ val }}</textarea>
+            <textarea id="{{id}}" class="materialize-textarea validate {{ class }}" ((required}} placeholder="{{placeholder}}">{{ val }}</textarea>
         {% else %}
-            <input id="{{ id }}" type="text" value="{{val}}" class="validate {{class}}" {{required}}>
+            <input id="{{ id }}" type="text" value="{{val}}" class="validate {{class}}" placeholder="{{placeholder}}" {{required}}>
         {% endif %}
 
         {% if label %}
@@ -178,8 +179,3 @@ label=''
         <label>{{ label }}</label>
     </div>
 {% endmacro %}
-
-<div class="input-field col s12">
-    <input id="${$(this).text()}-${1}" name="${$(this).text()}" type="text">
-    <label for="${$(this).text()}-${1}">${$(this).text()}</label>
-</div>

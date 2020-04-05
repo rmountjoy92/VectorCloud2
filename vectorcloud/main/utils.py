@@ -1,7 +1,8 @@
 import os
-from shutil import copy2
+from shutil import copy2, rmtree
 import importlib
-from git import Repo
+from git import Repo, cmd as git_cmd
+from configparser import ConfigParser
 from flask import render_template
 from flask_socketio import emit
 from vectorcloud import socketio, db
@@ -10,8 +11,9 @@ from vectorcloud.paths import (
     plugins_js_folder,
     plugins_panels_folder,
     repositories_folder,
+    sdk_config_file,
 )
-from vectorcloud.main.models import Repositories
+from vectorcloud.main.models import Repositories, Vectors
 
 # --------------------------------------------------------------------------------------
 # UTILITY/MISC FUNCTIONS
@@ -32,7 +34,33 @@ def row2dict(row):
 
 
 def database_init():
-    pass
+    # Initialize the Vectors table
+    db.session.query(Vectors).delete()
+    db.session.commit()
+
+    try:
+        config = ConfigParser()
+        config.read(sdk_config_file)
+        for serial in config.sections():
+            vector = Vectors()
+            vector.serial = serial
+            vector.cert_file = config.get(serial, "cert")
+            vector.ip = config.get(serial, "ip")
+            vector.name = config.get(serial, "name")
+            vector.guid = config.get(serial, "guid")
+            db.session.add(vector)
+            db.session.commit()
+
+    except FileNotFoundError:
+        pass
+
+    # Auto-update repositories
+    for repository in Repositories.query.filter_by(auto_update=True).all():
+        update_repositories(repository)
+        repositories = get_repositories(repository)
+        for plugin in repositories[0].plugins:
+            if f"{plugin['name']}.py" in os.listdir(plugins_folder):
+                reinstall_plugin(plugin["name"], repository)
 
 
 # --------------------------------------------------------------------------------------
@@ -40,7 +68,7 @@ def database_init():
 # --------------------------------------------------------------------------------------
 def add_repository(link):
     name = link[link.rfind("/") + 1 :]
-    path = os.path.join(repositories_folder, name)
+    path = os.path.join(repositories_folder, name.replace(".git", ""))
     Repo.clone_from(link, path)
     repo = Repositories()
     repo.url = link
@@ -50,9 +78,20 @@ def add_repository(link):
     db.session.commit()
 
 
-def get_repositories():
+def delete_repository(repo):
+    rmtree(repo.fp)
+    Repositories.query.filter_by(id=repo.id).delete()
+    db.session.commit()
+
+
+def get_repositories(repository=None):
+    if not repository:
+        repositories = Repositories.query.all()
+    else:
+        repositories = [repository]
+
     installed_plugins = os.listdir(plugins_folder)
-    repositories = Repositories.query.all()
+
     for repository in repositories:
         repository.plugins = []
         for subdir in os.listdir(repository.fp):
@@ -77,6 +116,16 @@ def get_repositories():
                     }
                 )
     return repositories
+
+
+def update_repositories(repo=None):
+    if not repo:
+        repos = Repositories.query.all()
+    else:
+        repos = [repo]
+    for repo in repos:
+        g = git_cmd.Git(repo.fp)
+        g.pull()
 
 
 def get_plugins():
@@ -171,6 +220,9 @@ def check_plugin_dependencies(plugin_name):
 
 
 def uninstall_plugin(plugin_name, force=False):
+    if f"{plugin_name}.py" not in os.listdir(plugins_folder):
+        return f"No plugin named {plugin_name}"
+
     if check_plugin_dependencies(plugin_name) is True or force is True:
         plugin_path = os.path.join(plugins_folder, plugin_name + ".py")
         spec = importlib.util.spec_from_file_location(plugin_name, plugin_path)
@@ -196,16 +248,24 @@ def uninstall_plugin(plugin_name, force=False):
         return "There is another plugin that depends on this one. Uninstall cancelled."
 
 
+def reinstall_plugin(plugin_name, repository=None):
+    if not repository:
+        repository = Repositories.query.first()
+    uninstall_plugin(plugin_name, force=True)
+    install_plugin(plugin_name, repository)
+
+
 def start_plugins():
-    plugin_files = os.listdir(plugins_folder)
-    plugin_files = sorted(plugin_files)
-    for plugin_file in plugin_files:
-        name, extension = os.path.splitext(plugin_file)
-        if extension.lower() == ".py" and name not in ["utils", "__init__"]:
-            module = importlib.import_module(f"vectorcloud.plugins.{name}", ".")
-            plugin = module.Plugin(name)
-            if hasattr(plugin, "on_startup"):
-                plugin.on_startup()
+    if Vectors.query.first():
+        plugin_files = os.listdir(plugins_folder)
+        plugin_files = sorted(plugin_files)
+        for plugin_file in plugin_files:
+            name, extension = os.path.splitext(plugin_file)
+            if extension.lower() == ".py" and name not in ["utils", "__init__"]:
+                module = importlib.import_module(f"vectorcloud.plugins.{name}", ".")
+                plugin = module.Plugin(name)
+                if hasattr(plugin, "on_startup"):
+                    plugin.on_startup()
 
 
 def run_plugin(plugin_name, options={}):

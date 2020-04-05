@@ -1,3 +1,132 @@
+function show_panel(panel, vector_id, btn=null) {
+    console.log(vector_id)
+    $(".plugin-panels-container").each(function(e) {
+        if ($(this).attr('vector_id') == vector_id) {
+            $(this).find(".plugin-panel").addClass('hide');
+            $(this).find(panel).removeClass('hide');
+        }
+    });
+    $(".plugin-icons-container").each(function(e) {
+        if ($(this).attr('vector_id') == vector_id) {
+            $(this).find('.plugin-btn:not(.color-ignore)').removeClass('theme-primary-text');
+            $(this).find('.plugin-btn:not(.color-ignore)').addClass('theme-secondary-text');
+        }
+    });
+    if (btn != null) {
+        btn.removeClass('theme-secondary-text');
+        btn.addClass('theme-primary-text');
+    }
+}
+
+function load_repositories() {
+    $.ajax({
+        url: $("#repositories-container").attr('data-url'),
+        type: 'GET',
+        success: function(data){
+            $("#repositories-container").empty();
+            $("#repositories-container").append(data);
+            init_repositories();
+        }
+    });
+}
+
+function init_repositories() {
+    init_tooltips();
+
+    $(".show-repository-plugins-btn").on('click', function(e) {
+        var plugins_list = $(this).closest('.repository-collection-item').find('.repository-plugins-list');
+        if (plugins_list.hasClass('hide')){
+            plugins_list.removeClass('hide');
+            $(this).addClass('theme-primary-text');
+        } else {
+            plugins_list.addClass('hide');
+            $(this).removeClass('theme-primary-text');
+        }
+    });
+
+    $(".update-repository-btn").on('click', function(e) {
+        var el = $(this);
+        $.ajax({
+            url: el.attr('data-url'),
+            data: {id: el.attr('data-id')},
+            type: 'GET',
+            success: function(data){
+                el.tooltip('destroy');
+                load_repositories();
+                M.toast({html: 'Repository updated'});
+            }
+        });
+    });
+
+    $(".toggle-repository-auto-update-btn").on('click', function(e) {
+        var el = $(this);
+        $.ajax({
+            url: el.attr('data-url'),
+            type: 'GET',
+            data: {repo_id: el.attr('data-id'), toggle: el.attr('data-toggle')},
+            success: function(data){
+                el.tooltip('destroy');
+                load_repositories();
+            }
+        });
+    });
+
+    $(".delete-repository-btn").on('click', function(e) {
+        var r = confirm('Are you sure you want to do that? Any installed plugins will no longer be able to update from this repository.')
+        var el = $(this)
+        if (r == true) {
+            $.ajax({
+                url: el.attr('data-url'),
+                type: 'GET',
+                data: {id: el.attr('data-id')},
+                success: function(data){
+                    load_repositories();
+                    M.toast({html: 'Repository deleted'})
+                }
+            });
+        }
+    });
+
+    $(".install-plugin-btn").on('click', function(e) {
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            data: {plugin_name: $(this).attr('data-plugin'), repo_id: $(this).attr('data-repo_id')},
+            success: function(data){
+                if (data == "success"){
+                    var toastHTML = '<span>Plugin installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+                    M.toast({html: toastHTML});
+                } else {
+                    M.toast({html: data, classes: 'theme-warning'});
+                }
+            }
+        });
+    });
+
+    $(".install-all-plugins-from-repo-btn").on('click', function(e) {
+       $.ajax({
+           url: $(this).attr('data-url'),
+           type: 'GET',
+           data: {repo_id: $(this).attr('data-id')},
+           success: function(data){
+               var toastHTML = '<span>Plugins installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+               M.toast({html: toastHTML});
+           }
+       });
+    });
+    $(".reinstall-plugin-from-repo-btn").on('click', function(e) {
+       $.ajax({
+           url: $(this).attr('data-url'),
+           type: 'GET',
+           data: {plugin_name: $(this).attr('data-plugin_name'), repo_id: $(this).attr('data-repo_id')},
+           success: function(data){
+               var toastHTML = '<span>Plugin reinstalled.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+               M.toast({html: toastHTML});
+           }
+       });
+    });
+}
+
 var socket = io();
 
 socket.on('vector_busy', function(vector_id) {
@@ -35,32 +164,14 @@ socket.on('server_message', function(message) {
 
 
 $( document ).ready(function() {
+    $("#add-repository-modal").modal();
 
     $('#settings-sidenav').sidenav({
         edge: 'right',
         draggable: false,
     });
 
-    $(".status-remote").on('click', function(e) {
-        var id = $(this).attr("data-id");
-        hide_info_tabs($("#status-video-feed-row-" + id), id);
-        $("#video-feed-preload-circle-" + id).removeClass('hide');
-        $("#status-video-feed-" + id).attr("src", $("#status-video-feed-" + id).attr('data-url'));
-    });
-
-    $(".status-video-feed").on('load', function (e) {
-        var id = $(this).attr("data-id");
-        $("#video-feed-preload-circle-" + id).addClass('hide');
-        socket.emit('request_logbook');
-    });
-
-    $(".status-close-video-feed").on('click', function(e) {
-        var id = $(this).attr("data-id");
-        var name = $(this).attr("data-name");
-        $("#status-video-feed-" + id).attr("src", "static/images/avatar.jpg");
-        $("#status-video-feed-row-" + id).addClass('hide');
-        socket.emit('logbook_log', {name: name + " closed the stream.", log_type: 'success'});
-    });
+    load_repositories();
 
     var plugins = {};
     $(".plugin-name").each(function(e) {
@@ -123,15 +234,6 @@ $( document ).ready(function() {
         $(this).addClass('hide');
     });
 
-    $(".show-repository-plugins-btn").on('click', function(e) {
-        var plugins_list = $(this).closest('.repository-collection-item').find('.repository-plugins-list');
-        if (plugins_list.hasClass('hide')){
-            plugins_list.removeClass('hide');
-        } else {
-            plugins_list.addClass('hide');
-        }
-    });
-
     $(".show-plugin-info-btn").on('click', function(e) {
         var plugin_info = $(this).closest('.card').find('.plugin-info-row');
         if (plugin_info.hasClass('hide')){
@@ -162,40 +264,29 @@ $( document ).ready(function() {
         }
     });
 
-    $(".install-plugin-btn").on('click', function(e) {
+    $("#add-repository-clone-btn").on('click', function(e) {
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
-            data: {plugin_name: $(this).attr('data-plugin')},
+            data: {url: $("#add-repository-repo_url").val()},
             success: function(data){
-                if (data == "success"){
-                    var toastHTML = '<span>Plugin installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-                    M.toast({html: toastHTML});
-                } else {
-                    M.toast({html: data, classes: 'theme-warning'});
-                }
+                load_repositories();
+                $("#add-repository-repo_url").val('');
+                $("#add-repository-modal").modal('close');
+                M.toast({html: 'Repository added'});
             }
         });
     });
 
-});
+    $("#update-all-repositories-btn").on('click', function(e) {
+       $.ajax({
+           url: $(this).attr('data-url'),
+           type: 'GET',
+           success: function(data){
+               load_repositories();
+               M.toast({html: 'Repositories updated'})
+           }
+       });
+    });
 
-function show_panel(panel, vector_id, btn=null) {
-    console.log(vector_id)
-    $(".plugin-panels-container").each(function(e) {
-        if ($(this).attr('vector_id') == vector_id) {
-            $(this).find(".plugin-panel").addClass('hide');
-            $(this).find(panel).removeClass('hide');
-        }
-    });
-    $(".plugin-icons-container").each(function(e) {
-        if ($(this).attr('vector_id') == vector_id) {
-            $(this).find('.plugin-btn:not(.color-ignore)').removeClass('theme-primary-text');
-            $(this).find('.plugin-btn:not(.color-ignore)').addClass('theme-secondary-text');
-        }
-    });
-    if (btn != null) {
-        btn.removeClass('theme-secondary-text');
-        btn.addClass('theme-primary-text');
-    }
-}
+});

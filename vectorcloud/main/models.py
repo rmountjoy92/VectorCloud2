@@ -38,6 +38,7 @@ class Repositories(db.Model):
     url = db.Column(db.String())
     name = db.Column(db.String())
     fp = db.Column(db.String())
+    auto_update = db.Column(db.String())
 
 
 db.create_all()

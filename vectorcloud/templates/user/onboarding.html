@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% from 'global_macros.html' import input, button %}
+
+{% block content %}
+    <div id="user-exists" class="hide" data-home-url="{{ url_for('main.home') }}">{{ user }}</div>
+    <div id="vector-exists" class="hide">{{ vector }}</div>
+    <div class="row add-user-row">
+        <div class="col s12 l4 offset-l4">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row center-align mt-4">
+                        <img width="120px" src="static/images/logo/logo.svg" alt="VectorCloud Logo">
+                    </div>
+                    <div class="row center-align">
+                        <h4>Welcome to VectorCloud!</h4>
+                        <blockquote>VectorCloud is an open-source platform for interacting with your Vector robot! Please create a user account below to get started.</blockquote>
+                    </div>
+                    <div class="row">
+                        <form class="register-form" method="POST" data-url="{{ url_for('user_system.add_user') }}">
+                            {{ register_form.hidden_tag() }}
+
+                            {{ input(
+                            form_obj=register_form.username,
+                            id="register-form-username",
+                            size="s12",
+                            icon="person",
+                            label="Username"
+                            ) }}
+
+                            {{ input(
+                            form_obj=register_form.password,
+                            id="register-form-password",
+                            size="s12",
+                            icon="lock",
+                            label="Password"
+                            ) }}
+
+                            {{ input(
+                            form_obj=register_form.confirm_password,
+                            id="register-form-confirm_password",
+                            size="s12",
+                            icon="lock",
+                            label="Confirm Password"
+                            ) }}
+
+                            <div class="input-field col s12">
+                                <button type=submit class="btn theme-primary waves-effect waves-light right">Register</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row add-vector-row hide">
+        <div class="col s12 l6 offset-l3">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row center-align">
+                        <h5>No SDK configuration found.</h5>
+                        <blockquote>It looks like you haven't set up the SDK with any vectors on this device. Don't worry, VectorCloud can help with that.</blockquote>
+                    </div>
+                    <div class="row">
+                        <div id="add-vector-form-code-card" class=" hide card col s12 theme-surface-1">
+                            <div class="card-content">
+                                <code id="add-vector-form-code" style="font-size: .8rem">
+                                    Using robot name: Vector-V9T3 <br>
+                                    Using IP: 192.168.39.188 <br>
+                                    Using robot serial number: 00306af0 <br>
+                                    Downloading Vector certificate from Anki... <br>
+                                    Writing certificate file to '/home/ross/.anki_vector/Vector-V9T3-00306af0.cert'... <br>
+                                    Attempting to download guid from Vector-V9T3 at 192.168.39.188:443... <br>
+                                    Done. <br>
+                                    Writing config file to '/home/ross/.anki_vector/sdk_config.ini'... <br>
+                                </code>
+                            </div>
+                        </div>
+                        <form class="vector-form" method="POST" data-url="{{ url_for('user_system.add_vector') }}">
+                            {{ vector_form.hidden_tag() }}
+
+                            {{ input(
+                            form_obj=vector_form.anki_email,
+                            id="vector-form-anki_email",
+                            size="s12",
+                            label="Anki Email"
+                            ) }}
+
+                            {{ input(
+                            form_obj=vector_form.anki_password,
+                            id="register-form-anki_password",
+                            size="s12",
+                            label="Anki Password"
+                            ) }}
+
+                            {{ input(
+                            form_obj=vector_form.name,
+                            id="register-form-name",
+                            size="s12",
+                            label="Vector Name (e.g. Vector-W2R3)"
+                            ) }}
+
+                            {{ input(
+                            form_obj=vector_form.ip,
+                            id="register-form-ip",
+                            size="s12",
+                            label="Vector IP"
+                            ) }}
+
+                            {{ input(
+                            form_obj=vector_form.serial,
+                            id="register-form-serial",
+                            size="s12",
+                            label="Vector Serial"
+                            ) }}
+
+                            <div class="input-field col s12">
+                                <button type=submit class="btn theme-primary waves-effect waves-light right">Authenticate</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block page_lvl_js %}
+    {{ process_js_sources(src="user_system/onboarding.js")|safe }}
+{% endblock page_lvl_js %}

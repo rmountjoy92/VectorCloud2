@@ -1,0 +1,93 @@
+{% for repository in repositories %}
+    <div class="collection-item repository-collection-item" data-id="{{ repository.id }}">
+        <h5>{{ repository.name }}
+            <span class="theme-secondary-text pl-2" style="position: relative; top: 4px">
+                <i class="material-icons-outlined icon-btn show-repository-plugins-btn tooltipped"
+                   data-position="top" data-tooltip="Show available plugins">extension</i>
+
+                {% if repository.auto_update %}
+                    <i class="material-icons-outlined theme-primary-text icon-btn tooltipped toggle-repository-auto-update-btn"
+                       data-id="{{ repository.id }}"
+                       data-url="{{ url_for('main.toggle_repository_auto_update') }}"
+                       data-toggle = "off"
+                       data-position="top"
+                       data-tooltip="Turn off auto-update">toggle_on
+                    </i>
+                {% else %}
+                    <i class="material-icons-outlined icon-btn tooltipped toggle-repository-auto-update-btn"
+                       data-id="{{ repository.id }}"
+                       data-url="{{ url_for('main.toggle_repository_auto_update') }}"
+                       data-toggle = "on"
+                       data-position="top"
+                       data-tooltip="Turn on auto-update">toggle_off
+                    </i>
+                {% endif %}
+
+                <i class="material-icons-outlined icon-btn tooltipped update-repository-btn"
+                   data-id="{{ repository.id }}"
+                   data-url="{{ url_for('main.update_repository_by_id') }}"
+                   data-position="top"
+                   data-tooltip="Update repository">refresh
+                </i>
+
+                <i class="material-icons-outlined icon-btn install-all-plugins-from-repo-btn tooltipped"
+                   data-url="{{ url_for('main.install_all_plugins_from_repo') }}"
+                   data-id="{{ repository.id }}"
+                   data-position="top"
+                   data-tooltip="Install/reinstall all plugins">system_update_alt</i>
+
+                <i class="material-icons-outlined icon-btn tooltipped delete-repository-btn"
+                   data-position="top"
+                   data-tooltip="Delete repository"
+                   data-url="{{ url_for('main.delete_repository_by_id') }}"
+                   data-id="{{ repository.id }}">delete
+                </i>
+            </span>
+        </h5>
+        <div class="collection with-header mt-2">
+            <div class="collection-header">Source Code</div>
+            <div class="collection-item"><a href="{{ repository.url }}" target="_blank">{{ repository.url }}</a></div>
+            <div class="collection-header">Locally Stored at</div>
+            <div class="collection-item"><span class="theme-secondary-text"><u>{{ repository.fp }}</u></span></div>
+        </div>
+
+        <div class="row hide repository-plugins-list">
+            <div class="row card-filter-container">
+                <div class="col s12 input-field">
+                        <span>
+                            <i class="material-icons prefix card-search-icon">search</i>
+                            <input type="text" id="repository-plugins-search" class="card-filter theme-surface" placeholder="Search {{ repository.name }}">
+                        </span>
+                </div>
+            </div>
+            {% for plugin in repository.plugins %}
+                <div class="card">
+                    <div class="card-content">
+                        <h5>{{ plugin['name'] }}</h5>
+                        <h6 class="theme-secondary-text">{{ plugin['description'] }}</h6>
+                        <div class="row right-align pr-2">
+                            <span class="theme-secondary-text">
+                                {% if plugin['installed'] == False %}
+                                    <i class="material-icons-outlined theme-primary-text icon-btn tooltipped install-plugin-btn"
+                                       data-position="top" data-tooltip="Install plugin"
+                                       data-plugin="{{ plugin['name'] }}"
+                                       data-repo_id="{{ repository.id }}"
+                                       data-url="{{ url_for('main.install_plugin_from_repo') }}">get_app</i>
+                                {% else %}
+                                    <i class="material-icons-outlined theme-primary-text icon-btn tooltipped reinstall-plugin-from-repo-btn"
+                                       data-url="{{ url_for('main.reinstall_plugin_by_name') }}"
+                                       data-plugin_name="{{ plugin['name'] }}"
+                                       data-repo_id="{{ repository.id }}"
+                                       data-position="top"
+                                       data-tooltip="Replace installed plugin {{ plugin['name'] }}">repeat</i>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+
+    </div>
+{% endfor %}
