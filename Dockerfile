@@ -14,4 +14,4 @@ COPY [ ".", "/vectorcloud/" ]
 ENV PRODUCTION=true
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
-CMD [ "gunicorn", "--worker-class eventlet", 'w 1', "0.0.0.0:5000", "wsgi:app" ]
+CMD [ "gunicorn", "--worker-class eventlet", 'w 1', "run:app" ]
