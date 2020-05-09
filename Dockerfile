@@ -17,7 +17,7 @@ ENV PRODUCTION=true
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
 
-RUN useradd -rm -d /home/vc_user -s /bin/bash -g root -G sudo -u 1000 vc_user
+RUN useradd -ou 0 -g 0 -ms /bin/bash vc_user
 USER vc_user
 
 CMD gunicorn --worker-class eventlet --bind 0.0.0.0:5000 -w 1 run:app
