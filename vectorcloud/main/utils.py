@@ -79,11 +79,14 @@ def database_init():
 # --------------------------------------------------------------------------------------
 # PLUGIN FUNCTIONS
 # --------------------------------------------------------------------------------------
-def add_repository(link, auto_update=False):
+def add_repository(link, auto_update=False, replace_existing=False):
     name = link[link.rfind("/") + 1 :]
     path = os.path.join(repositories_folder, name.replace(".git", ""))
     Repo.clone_from(link, path)
-    repo = Repositories()
+    if replace_existing:
+        repo = Repositories.query.filter_by(url=link).first()
+    else:
+        repo = Repositories()
     repo.url = link
     repo.name = name
     repo.fp = path
@@ -139,6 +142,8 @@ def update_repositories(repo=None):
     else:
         repos = [repo]
     for repo in repos:
+        if not os.path.isdir(repo.fp):
+            add_repository(repo.url, replace_existing=True)
         g = git_cmd.Git(repo.fp)
         g.pull()
 
