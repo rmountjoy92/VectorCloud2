@@ -1,7 +1,9 @@
 FROM python:3.7.5-slim
 
 RUN apt-get update -q \
-  && rm -rf /var/lib/apt/lists/*
+   && apt-get install --no-install-recommends -qy \
+       git \
+   && rm -rf /var/lib/apt/lists/*
 
 COPY [ "requirements.txt", "/vectorcloud/" ]
 
