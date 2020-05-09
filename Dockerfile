@@ -3,6 +3,8 @@ FROM python:3.7.5-slim
 RUN apt-get update -q \
    && apt-get install --no-install-recommends -qy \
        git \
+   && apt-get install --no-install-recommends -qy \
+       upstart \
    && rm -rf /var/lib/apt/lists/*
 
 COPY [ "requirements.txt", "/vectorcloud/" ]
