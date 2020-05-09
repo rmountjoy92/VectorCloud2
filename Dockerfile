@@ -4,7 +4,7 @@ RUN apt-get update -q \
    && apt-get install --no-install-recommends -qy \
        git \
    && apt-get install --no-install-recommends -qy \
-       upstart \
+       sysvinit-core \
    && rm -rf /var/lib/apt/lists/*
 
 COPY [ "requirements.txt", "/vectorcloud/" ]
