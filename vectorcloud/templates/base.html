@@ -5,6 +5,7 @@
 
 <head>
   <script>
+      localStorage.setItem('mode', 'dark');
     let mode = localStorage.getItem('mode');
     if (mode === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
