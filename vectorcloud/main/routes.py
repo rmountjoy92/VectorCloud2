@@ -88,7 +88,7 @@ def home():
 @main.route("/restart_system", methods=["GET"])
 def restart_system():
     restart_system_func()
-    return "Only the docker image can reset the server. If you are running by other means, you will need to restart manually."
+    return os.environ.get("VC_DOCKER_CONTAINER")
 
 
 @main.route("/load_repositories", methods=["GET"])
