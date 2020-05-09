@@ -17,4 +17,4 @@ ENV PRODUCTION=true
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
 
-CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "run:app" ]
+CMD [ "python", "run.py" ]
