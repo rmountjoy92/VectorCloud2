@@ -19,7 +19,7 @@ from vectorcloud.main.models import Repositories, Vectors
 # --------------------------------------------------------------------------------------
 # UTILITY/MISC FUNCTIONS
 # --------------------------------------------------------------------------------------
-def restart_system():
+def restart_system_func():
     if os.environ.get("VC_DOCKER_CONTAINER") == "true":
         os.system("shutdown /r /t 1")
 
@@ -231,8 +231,6 @@ def install_plugin(plugin_name, repository=None):
 
     if hasattr(plugin, "on_install"):
         plugin.on_install()
-    if hasattr(plugin, "on_startup"):
-        plugin.on_startup()
 
     return "success"
 
@@ -299,6 +297,7 @@ def start_plugins():
                 plugin = module.Plugin(name)
                 if hasattr(plugin, "on_startup"):
                     plugin.on_startup()
+        os.environ["VC_RESTART_NEEDED"] = "false"
 
 
 def run_plugin(plugin_name, options={}):

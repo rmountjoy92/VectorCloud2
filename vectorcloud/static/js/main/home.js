@@ -104,26 +104,26 @@ function init_repositories() {
     });
 
     $(".install-all-plugins-from-repo-btn").on('click', function(e) {
-       $.ajax({
-           url: $(this).attr('data-url'),
-           type: 'GET',
-           data: {repo_id: $(this).attr('data-id')},
-           success: function(data){
-               var toastHTML = '<span>Plugins installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-               M.toast({html: toastHTML});
-           }
-       });
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            data: {repo_id: $(this).attr('data-id')},
+            success: function(data){
+                var toastHTML = '<span>Plugins installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+                M.toast({html: toastHTML});
+            }
+        });
     });
     $(".reinstall-plugin-from-repo-btn").on('click', function(e) {
-       $.ajax({
-           url: $(this).attr('data-url'),
-           type: 'GET',
-           data: {plugin_name: $(this).attr('data-plugin_name'), repo_id: $(this).attr('data-repo_id')},
-           success: function(data){
-               var toastHTML = '<span>Plugin reinstalled.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-               M.toast({html: toastHTML});
-           }
-       });
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            data: {plugin_name: $(this).attr('data-plugin_name'), repo_id: $(this).attr('data-repo_id')},
+            success: function(data){
+                var toastHTML = '<span>Plugin reinstalled.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
+                M.toast({html: toastHTML});
+            }
+        });
     });
 }
 
@@ -279,14 +279,25 @@ $( document ).ready(function() {
     });
 
     $("#update-all-repositories-btn").on('click', function(e) {
-       $.ajax({
-           url: $(this).attr('data-url'),
-           type: 'GET',
-           success: function(data){
-               load_repositories();
-               M.toast({html: 'Repositories updated'})
-           }
-       });
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            success: function(data){
+                load_repositories();
+                M.toast({html: 'Repositories updated'})
+            }
+        });
+    });
+
+    $("#restart-system-btn").on('click', function(e) {
+        M.toast({html: 'Server restarting please wait..'})
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: 'GET',
+            success: function(data){
+                M.toast({html: data, classes: "theme-warning"})
+            }
+        });
     });
 
 });

@@ -22,6 +22,7 @@ from vectorcloud.main.utils import (
     delete_repository,
     update_repositories,
     reinstall_plugin,
+    restart_system_func,
 )
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
@@ -80,7 +81,14 @@ def home():
         plugin_icons=plugin_icons,
         plugin_panels=plugin_panels,
         plugins_js=plugins_js,
+        restart_needed=os.environ.get("VC_RESTART_NEEDED", None),
     )
+
+
+@main.route("/restart_system", methods=["GET"])
+def restart_system():
+    restart_system_func()
+    return "Only the docker image can reset the server. If you are running by other means, you will need to restart manually."
 
 
 @main.route("/load_repositories", methods=["GET"])
@@ -150,6 +158,7 @@ def install_plugin_from_repo():
     repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
     output = install_plugin(request.args.get("plugin_name"), repository)
     if output == "success":
+        os.environ["VC_RESTART_NEEDED"] = "true"
         return "success"
     else:
         return output
@@ -161,6 +170,7 @@ def install_all_plugins_from_repo():
     repositories = get_repositories(repository)
     for plugin in repositories[0].plugins:
         reinstall_plugin(plugin["name"], repository)
+        os.environ["VC_RESTART_NEEDED"] = "true"
     return "ok"
 
 
@@ -168,6 +178,7 @@ def install_all_plugins_from_repo():
 def reinstall_plugin_by_name():
     repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
     reinstall_plugin(request.args.get("plugin_name"), repository)
+    os.environ["VC_RESTART_NEEDED"] = "true"
     return "ok"
 
 
