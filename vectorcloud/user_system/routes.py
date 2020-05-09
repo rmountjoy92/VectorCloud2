@@ -92,7 +92,7 @@ def add_user():
 
 
 @public_route
-@user_system.route("/add_vector")
+@user_system.route("/add_vector", methods=["POST"])
 def add_vector():
     output, error = authenticate_vector(
         request.form.get("anki_email"),
