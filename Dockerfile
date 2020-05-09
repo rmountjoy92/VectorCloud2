@@ -20,4 +20,4 @@ VOLUME /vectorcloud/vectorcloud/user_data
 RUN useradd -ou 0 -g 0 -ms /bin/bash vc_user
 USER vc_user
 
-CMD gunicorn --bind 0.0.0.0:5000 run:app
+CMD [ "gunicorn", "run:app" ]
