@@ -190,6 +190,13 @@ def install_plugin(plugin_name, repository=None):
             )
             new_path = os.path.join(plugins_panels_folder, plugin_panel["template"])
             copy2(path, new_path)
+    if interface_data.get("plugin_extra_html", None):
+        for plugin_html in interface_data["plugin_extra_html"]:
+            path = os.path.join(
+                repositories_folder, repository.name, plugin_name, plugin_html
+            )
+            new_path = os.path.join(plugins_panels_folder, plugin_html)
+            copy2(path, new_path)
     if interface_data.get("plugin_js", None):
         for plugin_js in interface_data["plugin_js"]:
             path = os.path.join(

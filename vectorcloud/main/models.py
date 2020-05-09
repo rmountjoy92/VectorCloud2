@@ -10,13 +10,12 @@ class Files(db.Model):
     folder = db.Column(db.String())
 
 
-class Logbook(db.Model):
+class PluginStorage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
-    info = db.Column(db.String())
-    dt = db.Column(db.String())
-    log_type = db.Column(db.String())
-    vector_id = db.Column(db.Integer, db.ForeignKey("vectors.id"))
+    plugin = db.Column(db.String())
+    entry_type = db.Column(db.String())
+    value_json = db.Column(db.String())
+    vector_id = db.Column(db.Integer)
 
 
 class Vectors(db.Model):
@@ -28,9 +27,6 @@ class Vectors(db.Model):
     guid = db.Column(db.String())
     custom_name = db.Column(db.String())
     description = db.Column(db.String())
-    logbook_items = db.relationship(
-        "Logbook", backref="vector", order_by="desc(Logbook.dt)"
-    )
 
 
 class Repositories(db.Model):
