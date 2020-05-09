@@ -1,0 +1,19 @@
+FROM python:3.8-slim
+
+RUN apt-get update -q \
+  && apt-get install --no-install-recommends -qy \
+    inetutils-ping \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY [ "requirements.txt", "/vectorcloud/" ]
+
+WORKDIR /vectorcloud
+
+RUN pip install --no-cache-dir --progress-bar off -r requirements.txt
+
+COPY [ ".", "/vectorcloud/" ]
+
+ENV PRODUCTION=true
+EXPOSE 5000
+VOLUME /vectorcloud/vectorcloud/user_data
+CMD [ "gunicorn", "--bind", '-t 300', "0.0.0.0:5000", "run:socketio" ]
