@@ -19,5 +19,3 @@ flask_caching
 flask-socketio
 gitpython
 gunicorn
-eventlet
-pyopenssl
