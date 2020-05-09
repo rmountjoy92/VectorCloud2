@@ -5,6 +5,10 @@ RUN apt-get update -q \
        git \
    && rm -rf /var/lib/apt/lists/*
 
+RUN useradd -rm -d /home/vc_user -s /bin/bash -g root -G sudo -u 1000 vc_user
+
+USER vc_user
+
 COPY [ "requirements.txt", "/vectorcloud/" ]
 
 WORKDIR /vectorcloud
