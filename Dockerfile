@@ -1,8 +1,6 @@
 FROM python:3.7.5-slim
 
 RUN apt-get update -q \
-  && apt-get install --no-install-recommends -qy \
-    inetutils-ping \
   && rm -rf /var/lib/apt/lists/*
 
 COPY [ "requirements.txt", "/vectorcloud/" ]
