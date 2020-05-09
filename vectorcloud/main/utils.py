@@ -22,6 +22,8 @@ from vectorcloud.main.models import Repositories, Vectors
 def restart_system_func():
     if os.environ.get("VC_DOCKER_CONTAINER") == "true":
         os.system("reboot")
+    else:
+        return os.environ.get("VC_DOCKER_CONTAINER")
 
 
 def public_route(decorated_function):

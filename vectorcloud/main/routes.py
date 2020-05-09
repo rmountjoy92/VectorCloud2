@@ -87,8 +87,8 @@ def home():
 
 @main.route("/restart_system", methods=["GET"])
 def restart_system():
-    restart_system_func()
-    return os.environ.get("VC_DOCKER_CONTAINER")
+    err = restart_system_func()
+    return err
 
 
 @main.route("/load_repositories", methods=["GET"])
