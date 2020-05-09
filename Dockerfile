@@ -17,4 +17,4 @@ ENV PRODUCTION=true
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
 
-CMD [ "python", "run.py" ]
+ENTRYPOINT [ "python", "run.py" ]
