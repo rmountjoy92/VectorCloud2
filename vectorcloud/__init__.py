@@ -79,10 +79,10 @@ from vectorcloud.rest_api.resources import *
 api.add_resource(Version, "/api/version")
 api.add_resource(RunPlugin, "/api/run")
 
-from vectorcloud.main.utils import database_init
-
-database_init()
-
 from vectorcloud.main.utils import start_plugins, handle_run_plugin
 
 start_plugins()
+
+from vectorcloud.main.utils import database_init
+
+database_init()
