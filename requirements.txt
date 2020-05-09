@@ -5,6 +5,7 @@ flask-sqlalchemy
 flask-bcrypt
 flask-login
 flask-wtf
+email_validator
 flask-migrate
 flask-script
 flask-restful
