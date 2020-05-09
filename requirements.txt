@@ -20,3 +20,4 @@ flask-socketio
 gitpython
 gunicorn
 eventlet
+pyopenssl
