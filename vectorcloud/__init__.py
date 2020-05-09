@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import os
 from flask import Flask
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +11,32 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
 from configparser import ConfigParser
+from vectorcloud.paths import (
+    plugins_folder,
+    plugins_js_folder,
+    plugins_panels_folder,
+    repositories_folder,
+    sdk_config_file,
+    user_data_folder,
+    custom_plugins_folder,
+)
 
+# create folders not tracked by git
+if not os.path.isdir(user_data_folder):
+    os.mkdir(user_data_folder)
+if not os.path.isdir(repositories_folder):
+    os.mkdir(repositories_folder)
+if not os.path.isdir(plugins_folder):
+    os.mkdir(plugins_folder)
+if not os.path.isdir(plugins_panels_folder):
+    os.mkdir(plugins_panels_folder)
+if not os.path.isdir(plugins_js_folder):
+    os.mkdir(plugins_js_folder)
+if not os.path.isdir(custom_plugins_folder):
+    os.mkdir(custom_plugins_folder)
+    with open(os.path.join(custom_plugins_folder, "__init__.py"), "w") as file:
+        file.write("")
+        file.close()
 
 app = Flask(__name__)
 cache = Cache(app, config={"CACHE_TYPE": "simple"})
@@ -53,6 +78,10 @@ from vectorcloud.rest_api.resources import *
 
 api.add_resource(Version, "/api/version")
 api.add_resource(RunPlugin, "/api/run")
+
+from vectorcloud.main.utils import database_init
+
+database_init()
 
 from vectorcloud.main.utils import start_plugins, handle_run_plugin
 

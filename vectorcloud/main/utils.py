@@ -12,8 +12,6 @@ from vectorcloud.paths import (
     plugins_panels_folder,
     repositories_folder,
     sdk_config_file,
-    user_data_folder,
-    custom_plugins_folder,
 )
 from vectorcloud.main.models import Repositories, Vectors
 
@@ -36,23 +34,6 @@ def row2dict(row):
 
 
 def database_init():
-    # create folders not tracked by git
-    if not os.path.isdir(user_data_folder):
-        os.mkdir(user_data_folder)
-    if not os.path.isdir(repositories_folder):
-        os.mkdir(repositories_folder)
-    if not os.path.isdir(plugins_folder):
-        os.mkdir(plugins_folder)
-    if not os.path.isdir(plugins_panels_folder):
-        os.mkdir(plugins_panels_folder)
-    if not os.path.isdir(plugins_js_folder):
-        os.mkdir(plugins_js_folder)
-    if not os.path.isdir(custom_plugins_folder):
-        os.mkdir(custom_plugins_folder)
-        with open(os.path.join(custom_plugins_folder, "__init__.py"), "w") as file:
-            file.write("")
-            file.close()
-
     # Initialize the Vectors table
     db.session.query(Vectors).delete()
     db.session.commit()
