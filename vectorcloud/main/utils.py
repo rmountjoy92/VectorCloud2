@@ -12,6 +12,8 @@ from vectorcloud.paths import (
     plugins_panels_folder,
     repositories_folder,
     sdk_config_file,
+    user_data_folder,
+    custom_plugins_folder,
 )
 from vectorcloud.main.models import Repositories, Vectors
 
@@ -34,6 +36,23 @@ def row2dict(row):
 
 
 def database_init():
+    # create folders not tracked by git
+    if not os.path.isdir(user_data_folder):
+        os.mkdir(user_data_folder)
+    if not os.path.isdir(repositories_folder):
+        os.mkdir(repositories_folder)
+    if not os.path.isdir(plugins_folder):
+        os.mkdir(plugins_folder)
+    if not os.path.isdir(plugins_panels_folder):
+        os.mkdir(plugins_panels_folder)
+    if not os.path.isdir(plugins_js_folder):
+        os.mkdir(plugins_js_folder)
+    if not os.path.isdir(custom_plugins_folder):
+        os.mkdir(custom_plugins_folder)
+        with open(os.path.join(custom_plugins_folder, "__init__.py"), "w") as file:
+            file.write("")
+            file.close()
+
     # Initialize the Vectors table
     db.session.query(Vectors).delete()
     db.session.commit()
@@ -42,17 +61,30 @@ def database_init():
         config = ConfigParser()
         config.read(sdk_config_file)
         for serial in config.sections():
-            vector = Vectors()
+            vector = Vectors.query.filter_by(serial=serial).first()
+            if not vector:
+                vector = Vectors()
+
             vector.serial = serial
             vector.cert_file = config.get(serial, "cert")
             vector.ip = config.get(serial, "ip")
             vector.name = config.get(serial, "name")
             vector.guid = config.get(serial, "guid")
-            db.session.add(vector)
+            db.session.merge(vector)
             db.session.commit()
 
     except FileNotFoundError:
         pass
+
+    # add official repo and install all plugins if no repo is configured
+    if not Repositories.query.first():
+        repo = add_repository(
+            "https://github.com/rmountjoy92/VectorCloudOfficialPlugins",
+            auto_update=True,
+        )
+        repositories = get_repositories(repo)
+        for plugin in repositories[0].plugins:
+            reinstall_plugin(plugin["name"], repo)
 
     # Auto-update repositories
     for repository in Repositories.query.filter_by(auto_update=True).all():
@@ -66,7 +98,7 @@ def database_init():
 # --------------------------------------------------------------------------------------
 # PLUGIN FUNCTIONS
 # --------------------------------------------------------------------------------------
-def add_repository(link):
+def add_repository(link, auto_update=False):
     name = link[link.rfind("/") + 1 :]
     path = os.path.join(repositories_folder, name.replace(".git", ""))
     Repo.clone_from(link, path)
@@ -74,8 +106,10 @@ def add_repository(link):
     repo.url = link
     repo.name = name
     repo.fp = path
+    repo.auto_update = auto_update
     db.session.add(repo)
     db.session.commit()
+    return repo
 
 
 def delete_repository(repo):
