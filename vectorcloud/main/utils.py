@@ -41,9 +41,6 @@ def row2dict(row):
 
 def database_init():
     # Initialize the Vectors table
-    db.session.query(Vectors).delete()
-    db.session.commit()
-
     try:
         config = ConfigParser()
         config.read(sdk_config_file)
@@ -88,6 +85,7 @@ def database_init():
         for plugin in repositories[0].plugins:
             if f"{plugin['name']}.py" in os.listdir(plugins_folder):
                 reinstall_plugin(plugin["name"], repository)
+        trigger_reload()
 
 
 # --------------------------------------------------------------------------------------
