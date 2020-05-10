@@ -70,7 +70,7 @@ def database_init():
     for repository in Repositories.query.all():
         if not os.path.isdir(repository.fp):
             add_repository(
-                repository.url, replace_existing=False, use_default_auto_update=True
+                repository.url, replace_existing=True, use_default_auto_update=True
             )
 
     # Auto-update repositories
