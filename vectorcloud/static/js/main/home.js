@@ -72,6 +72,7 @@ function init_repositories() {
     });
 
     $(".delete-repository-btn").on('click', function(e) {
+        M.toast({html: 'Deleting repository and restarting server..'})
         var r = confirm('Are you sure you want to do that? Any installed plugins will no longer be able to update from this repository.')
         var el = $(this)
         if (r == true) {
@@ -88,6 +89,7 @@ function init_repositories() {
     });
 
     $(".install-plugin-btn").on('click', function(e) {
+        M.toast({html: 'Installing plugin and restarting server..'})
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
@@ -95,7 +97,9 @@ function init_repositories() {
             success: function(data){
                 if (data == "success"){
                     var toastHTML = '<span>Plugin installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-                    M.toast({html: toastHTML});
+                    sleep(500).then(() => {
+                        M.toast({html: toastHTML});
+                    });
                 } else {
                     M.toast({html: data, classes: 'theme-warning'});
                 }
@@ -104,24 +108,30 @@ function init_repositories() {
     });
 
     $(".install-all-plugins-from-repo-btn").on('click', function(e) {
+        M.toast({html: 'Installing plugins and restarting server..'})
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
             data: {repo_id: $(this).attr('data-id')},
             success: function(data){
                 var toastHTML = '<span>Plugins installed.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-                M.toast({html: toastHTML});
+                sleep(500).then(() => {
+                    M.toast({html: toastHTML});
+                });
             }
         });
     });
     $(".reinstall-plugin-from-repo-btn").on('click', function(e) {
+        M.toast({html: 'Reinstalling plugin and restarting server..'})
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
             data: {plugin_name: $(this).attr('data-plugin_name'), repo_id: $(this).attr('data-repo_id')},
             success: function(data){
                 var toastHTML = '<span>Plugin reinstalled.</span><button onclick="location.reload();" class="btn-flat toast-action reload-ui-button">Reload</button>';
-                M.toast({html: toastHTML});
+                sleep(500).then(() => {
+                    M.toast({html: toastHTML});
+                });
             }
         });
     });
@@ -248,6 +258,7 @@ $( document ).ready(function() {
     $(".delete-plugin-btn").on('click', function(e) {
         var r = confirm("Are you sure you want to delete this plugin?");
         if (r == true) {
+            M.toast({html: 'Deleting plugin and restarting server..'})
             $.ajax({
                 url: $(this).attr('data-url'),
                 type: 'GET',

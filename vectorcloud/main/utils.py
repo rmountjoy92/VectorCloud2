@@ -12,6 +12,7 @@ from vectorcloud.paths import (
     plugins_panels_folder,
     repositories_folder,
     sdk_config_file,
+    root_folder,
 )
 from vectorcloud.main.models import Repositories, Vectors
 
@@ -19,6 +20,12 @@ from vectorcloud.main.models import Repositories, Vectors
 # --------------------------------------------------------------------------------------
 # UTILITY/MISC FUNCTIONS
 # --------------------------------------------------------------------------------------
+def trigger_reload():
+    with open(os.path.join(root_folder, "reload_trigger.py"), "w") as file:
+        file.write("reload_needed = True")
+        file.close()
+
+
 def public_route(decorated_function):
     decorated_function.is_public = True
     return decorated_function
@@ -301,7 +308,6 @@ def start_plugins():
                 plugin = module.Plugin(name)
                 if hasattr(plugin, "on_startup"):
                     plugin.on_startup()
-        os.environ["VC_RESTART_NEEDED"] = "false"
 
 
 def run_plugin(plugin_name, options={}):

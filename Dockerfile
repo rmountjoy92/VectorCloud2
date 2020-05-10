@@ -12,7 +12,6 @@ WORKDIR /vectorcloud
 RUN pip install --no-cache-dir --progress-bar off -r requirements.txt
 
 COPY [ ".", "/vectorcloud/" ]
-ENV FLASK_ENV=development
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
 

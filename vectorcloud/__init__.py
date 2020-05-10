@@ -42,7 +42,6 @@ app = Flask(__name__)
 cache = Cache(app, config={"CACHE_TYPE": "simple"})
 api = Api(app)
 avatars = Avatars(app)
-
 app.config["AVATARS_IDENTICON_BG"] = (255, 255, 255)
 app.config["SECRET_KEY"] = "66532a62c4048f976e22a39638b6f10e"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user_data/site.db"
@@ -86,3 +85,4 @@ start_plugins()
 from vectorcloud.main.utils import database_init
 
 database_init()
+from reload_trigger import reload_needed

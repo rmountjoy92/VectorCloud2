@@ -22,6 +22,7 @@ from vectorcloud.main.utils import (
     delete_repository,
     update_repositories,
     reinstall_plugin,
+    trigger_reload,
 )
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
@@ -103,6 +104,7 @@ def run():
 def delete_plugin():
     output = uninstall_plugin(request.args.get("plugin_name"))
     if output == "success":
+        trigger_reload()
         return "success"
     else:
         return output
@@ -118,6 +120,7 @@ def add_repo_from_link():
 def delete_repository_by_id():
     repo = Repositories.query.filter_by(id=request.args.get("id")).first()
     delete_repository(repo)
+    trigger_reload()
     return "ok"
 
 
@@ -151,7 +154,7 @@ def install_plugin_from_repo():
     repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
     output = install_plugin(request.args.get("plugin_name"), repository)
     if output == "success":
-        os.environ["VC_RESTART_NEEDED"] = "true"
+        trigger_reload()
         return "success"
     else:
         return output
@@ -163,7 +166,7 @@ def install_all_plugins_from_repo():
     repositories = get_repositories(repository)
     for plugin in repositories[0].plugins:
         reinstall_plugin(plugin["name"], repository)
-        os.environ["VC_RESTART_NEEDED"] = "true"
+    trigger_reload()
     return "ok"
 
 
@@ -171,7 +174,7 @@ def install_all_plugins_from_repo():
 def reinstall_plugin_by_name():
     repository = Repositories.query.filter_by(id=request.args.get("repo_id")).first()
     reinstall_plugin(request.args.get("plugin_name"), repository)
-    os.environ["VC_RESTART_NEEDED"] = "true"
+    trigger_reload()
     return "ok"
 
 
