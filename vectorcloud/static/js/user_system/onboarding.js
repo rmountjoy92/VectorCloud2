@@ -32,19 +32,24 @@ $( document ).ready(function() {
 
     $(".vector-form").on('submit', function(e) {
         e.preventDefault();
+        M.toast({html: 'Authenticating..'});
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'POST',
             data: $(this).serialize(),
             success: function(data){
-                $(".vector-form").trigger('reset');
-                $(".vector-form").addClass('hide');
-                $("#add-vector-form-code").text(data.data.output);
-                if (data.data.err == "success"){
-                    $(location).attr('href', data.data.url)
+                var row = $("#sdk-config-error-row")
+                if (data.data.success == "true"){
+                    row.removeClass('theme-warning');
+                    row.addClass('theme-success');
+                    $("#go-to-home-btn").removeClass('hide');
+                    $("#submit-vector-form-btn").text('Authenticate another');
                 } else {
-                    M.toast({html: data.data.err, classes: "theme-warning"});
+                    row.removeClass('theme-success');
+                    row.addClass('theme-warning');
                 }
+                $("#sdk-config-error-row").removeClass('hide');
+                $("#sdk-config-error-row").html(data.data.output);
             }
         });
     });

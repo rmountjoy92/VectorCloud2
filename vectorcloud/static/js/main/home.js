@@ -216,6 +216,7 @@ $( document ).ready(function() {
     });
 
     $(".run-plugin-btn").on('click', function(e) {
+        M.toast({html: 'Running plugin..'});
         var url = $(this).attr('data-url')
         var id = $(this).attr('data-id')
         $.ajax({
@@ -276,6 +277,7 @@ $( document ).ready(function() {
     });
 
     $("#add-repository-clone-btn").on('click', function(e) {
+        M.toast({html: 'Cloning..'});
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
@@ -290,23 +292,13 @@ $( document ).ready(function() {
     });
 
     $("#update-all-repositories-btn").on('click', function(e) {
+        M.toast({html: 'Updating..'});
         $.ajax({
             url: $(this).attr('data-url'),
             type: 'GET',
             success: function(data){
                 load_repositories();
                 M.toast({html: 'Repositories updated'})
-            }
-        });
-    });
-
-    $("#restart-system-btn").on('click', function(e) {
-        M.toast({html: 'Server restarting please wait..'})
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: 'GET',
-            success: function(data){
-                M.toast({html: data, classes: "theme-warning"})
             }
         });
     });

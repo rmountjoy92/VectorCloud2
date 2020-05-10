@@ -1,12 +1,15 @@
+import subprocess
+import os
 from flask import render_template, url_for, redirect, Blueprint, jsonify, request
 from flask_login import login_user, logout_user
 from vectorcloud.user_system.forms import LoginForm, RegisterForm, VectorForm
 from vectorcloud.user_system.models import User
 from vectorcloud.user_system.utils import add_user_func
 from vectorcloud import bcrypt
-from vectorcloud.main.utils import public_route
+from vectorcloud.main.utils import public_route, trigger_reload
 from vectorcloud.main.models import Vectors
 from vectorcloud.user_system.authenticate_vector import main as authenticate_vector
+from vectorcloud.paths import vc_folder
 
 user_system = Blueprint("user_system", __name__)
 
@@ -94,11 +97,18 @@ def add_user():
 @public_route
 @user_system.route("/add_vector", methods=["POST"])
 def add_vector():
-    output, error = authenticate_vector(
-        request.form.get("anki_email"),
-        request.form.get("anki_password"),
-        request.form.get("name"),
-        request.form.get("ip"),
-        request.form.get("serial"),
+    anki_email = request.form.get("anki_email")
+    anki_password = request.form.get("anki_password")
+    ip = request.form.get("ip")
+    name = request.form.get("name")
+    serial = request.form.get("serial")
+    cmd = f'python3 -m vectorcloud.user_system.anki_configure -e "{anki_email}" -p "{anki_password}" -i "{ip}" -n "{name}" -s "{serial}"'
+    output = subprocess.run(cmd, capture_output=True, shell=True, text=True)
+    if "SUCCESS!" in output.stdout:
+        success = "true"
+        trigger_reload()
+    else:
+        success = "false"
+    return jsonify(
+        data={"output": output.stdout.replace("\n", "<br>"), "success": success}
     )
-    return jsonify(data={"output": output, "err": error})

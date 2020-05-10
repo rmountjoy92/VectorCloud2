@@ -2,6 +2,11 @@
 {% from 'global_macros.html' import input, button %}
 
 {% block content %}
+    <style>
+        body {
+            overflow: auto !important;
+        }
+    </style>
     <div id="user-exists" class="hide" data-home-url="{{ url_for('main.home') }}">{{ user }}</div>
     <div id="vector-exists" class="hide">{{ vector }}</div>
     <div class="row add-user-row">
@@ -62,6 +67,7 @@
                         <h5>No SDK configuration found.</h5>
                         <blockquote>It looks like you haven't set up the SDK with any vectors on this device. Don't worry, VectorCloud can help with that.</blockquote>
                     </div>
+                    <div id="sdk-config-error-row" class="row hide theme-warning white-text padding-2 border-radius-10 mb-2"></div>
                     <div class="row">
                         <div id="add-vector-form-code-card" class=" hide card col s12 theme-surface-1">
                             <div class="card-content">
@@ -79,6 +85,14 @@
                         </div>
                         <form class="vector-form" method="POST" data-url="{{ url_for('user_system.add_vector') }}">
                             {{ vector_form.hidden_tag() }}
+
+                            {{ button(
+                            text="Go to homepage",
+                            icon="home",
+                            id="go-to-home-btn",
+                            class="hide",
+                            href=url_for('main.home')
+                            ) }}
 
                             {{ input(
                             form_obj=vector_form.anki_email,
@@ -116,7 +130,7 @@
                             ) }}
 
                             <div class="input-field col s12">
-                                <button type=submit class="btn theme-primary waves-effect waves-light right">Authenticate</button>
+                                <button id="submit-vector-form-btn" type=submit class="btn theme-primary waves-effect waves-light right">Authenticate</button>
                             </div>
 
                         </form>
