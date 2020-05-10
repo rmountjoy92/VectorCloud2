@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --progress-bar off -r requirements.txt
 
 COPY [ ".", "/vectorcloud/" ]
 
-ENV PRODUCTION=true
+ENV PRODUCTION=false
 ENV VC_DOCKER_CONTAINER="true"
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
