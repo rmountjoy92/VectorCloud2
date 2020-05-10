@@ -66,6 +66,13 @@ def database_init():
         for plugin in repositories[0].plugins:
             reinstall_plugin(plugin["name"], repo)
 
+    # Reclone missing repositories
+    for repository in Repositories.query.all():
+        if not os.path.isdir(repository.fp):
+            add_repository(
+                repository.url, replace_existing=False, use_default_auto_update=True
+            )
+
     # Auto-update repositories
     for repository in Repositories.query.filter_by(auto_update=True).all():
         update_repositories(repository)
@@ -78,12 +85,16 @@ def database_init():
 # --------------------------------------------------------------------------------------
 # PLUGIN FUNCTIONS
 # --------------------------------------------------------------------------------------
-def add_repository(link, auto_update=False, replace_existing=False):
+def add_repository(
+    link, auto_update=False, replace_existing=False, use_default_auto_update=False
+):
     name = link[link.rfind("/") + 1 :]
     path = os.path.join(repositories_folder, name.replace(".git", ""))
     Repo.clone_from(link, path)
     if replace_existing:
         repo = Repositories.query.filter_by(url=link).first()
+        if use_default_auto_update:
+            auto_update = repo.auto_update
     else:
         repo = Repositories()
     repo.url = link
@@ -141,8 +152,6 @@ def update_repositories(repo=None):
     else:
         repos = [repo]
     for repo in repos:
-        if not os.path.isdir(repo.fp):
-            add_repository(repo.url, replace_existing=True)
         g = git_cmd.Git(repo.fp)
         g.pull()
 
