@@ -69,7 +69,6 @@ def database_init():
         repositories = get_repositories(repo)
         for plugin in repositories[0].plugins:
             reinstall_plugin(plugin["name"], repo)
-        trigger_reload()
 
     # Reclone missing repositories
     for repository in Repositories.query.all():
@@ -85,7 +84,6 @@ def database_init():
         for plugin in repositories[0].plugins:
             if f"{plugin['name']}.py" in os.listdir(plugins_folder):
                 reinstall_plugin(plugin["name"], repository)
-        trigger_reload()
 
 
 # --------------------------------------------------------------------------------------
