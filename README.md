@@ -1,9 +1,26 @@
-Hello all! I am the creator of VectorCloud, a currently deprecated web interface for Vector.
+# VECTORCLOUD
+### A web interface for controlling Anki's Vector Robot
 
-https://forums.anki.com/t/vectorcloud-a-web-interface-for-anki-vector/22129?u=rmountjoy
+### CURRENT STATUS: DEVELOPER PREVIEW
+WARNING: this is not a finished product and is being made available for testing purposes only. At this time, I am not providing any support regarding installation/setup any further than the instructions below.
 
-For all of you that have tried/used VectorCloud, I apologize for my extended absence on this program. When I heard the news about Anki shutting down, I lost all motivation to continue sinking work into this project. In light of news about Digital Dream Labs continuing development of Vector, I plan to revive this project with a version 2.0.
-
-Development of VectorCloud 2.0 can be tracked here.
-
-Note: When VectorCloud2 is released, this repo will be deleted and code moved to github.com/rmountjoy92/VectorCloud
+### Installation
+### Docker
+```bash
+docker create \
+  --name=vectorcloud \
+  -p 5000:5000 \
+  -v path/to/data:/vectorcloud/vectorcloud/user_data \
+  --restart unless-stopped \
+  rmountjoy/vectorcloud:latest
+```
+### Python
+Instructions are for linux. Windows not tested or officially supported.
+```bash
+virtualenv --python=python3.7.5 VectorCloudEnv
+cd VectorCloudEnv && source bin/activate
+git clone https://github.com/rmountjoy92/VectorCloud2.git
+cd VectorCloud2 && pip install -r requirements.txt
+python3 run.py
+```
+Then open a web browser and go to localhost:5000
