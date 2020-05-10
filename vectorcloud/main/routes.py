@@ -22,7 +22,6 @@ from vectorcloud.main.utils import (
     delete_repository,
     update_repositories,
     reinstall_plugin,
-    restart_system_func,
 )
 from vectorcloud.paths import cache_folder
 from vectorcloud import app, db
@@ -83,12 +82,6 @@ def home():
         plugins_js=plugins_js,
         restart_needed=os.environ.get("VC_RESTART_NEEDED", None),
     )
-
-
-@main.route("/restart_system", methods=["GET"])
-def restart_system():
-    err = restart_system_func()
-    return err
 
 
 @main.route("/load_repositories", methods=["GET"])
