@@ -18,4 +18,4 @@ ENV VC_DOCKER_CONTAINER="true"
 EXPOSE 5000
 VOLUME /vectorcloud/vectorcloud/user_data
 
-ENTRYPOINT [ "flask", "run" ]
+ENTRYPOINT [ "flask", "run", "--host=0.0.0.0" ]
